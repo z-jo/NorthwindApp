@@ -83,6 +83,8 @@
     <None Include="Content\DataTables\extensions\Buttons\css\mixins.scss" />
     <None Include="Content\DataTables\extensions\RowReorder\css\semanticui.scss" />
     <None Include="Content\DataTables\media\images\Sorting icons.psd" />
+    <None Include="Content\Vuetify\vuetify.css.map" />
+    <None Include="Content\Vuetify\vuetify.js.map" />
     <None Include="fonts\glyphicons-halflings-regular.eot" />
     <None Include="fonts\glyphicons-halflings-regular.ttf" />
     <None Include="fonts\glyphicons-halflings-regular.woff" />
@@ -263,6 +265,8 @@
     <Content Include="Content\DataTables\media\images\sort_both.png" />
     <Content Include="Content\DataTables\media\images\sort_desc.png" />
     <Content Include="Content\DataTables\media\images\sort_desc_disabled.png" />
+    <Content Include="Content\Vuetify\vuetify.css" />
+    <Content Include="Content\Vuetify\vuetify.min.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Model1.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -357,6 +361,10 @@
     <Content Include="Scripts\jquery-1.12.4.intellisense.js" />
     <Content Include="Scripts\jquery-1.12.4.js" />
     <Content Include="Scripts\jquery-1.12.4.min.js" />
+    <Content Include="Scripts\vue.js" />
+    <Content Include="Scripts\vue.min.js" />
+    <Content Include="Scripts\Vuetify\vuetify.js" />
+    <Content Include="Scripts\Vuetify\vuetify.min.js" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
