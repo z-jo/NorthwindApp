@@ -1,0 +1,2194 @@
+﻿@using Bulls.CrossReferenceTool.Web.Helpers
+@using Newtonsoft.Json
+@model dynamic
+@{
+    ViewBag.Title = "Cross Reference Items";
+    //Layout = "~/Views/Shared/_CoreDataLayout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    bool buFilterChecked = false;
+}
+
+@*<p>&nbsp;</p>*@
+
+<style>
+
+    .px-style-vote-container {
+        box-sizing: border-box;
+        /*margin-left:-10px;*/
+        margin-right: -10px;
+        padding-left: 10px; /*5px;*/
+    }
+
+        .px-style-vote-container.px-style-voted-up {
+            background-color: #aee9aa;
+        }
+
+        .px-style-vote-container.px-style-voted-down {
+            background-color: #f3b8b7;
+        }
+
+    .px-style-btn-circle {
+        display: inline-block;
+        box-sizing: border-box;
+        padding-left: 6px;
+        padding-top: 3px;
+        width: 24px;
+        height: 24px;
+        border-radius: 12px;
+        background-color: #154b9c;
+        color: #ffffff;
+        margin-top: 2px;
+        margin-bottom: 2px;
+    }
+
+        .px-style-btn-circle:hover {
+            color: #ffffff;
+        }
+
+        .px-style-btn-circle:focus {
+            color: #ffffff;
+        }
+
+        .px-style-btn-circle i {
+            font-size: 14px;
+        }
+
+    .fa-bounce {
+        display: inline-block;
+        position: relative;
+        -moz-animation: bounce 1s infinite linear;
+        -o-animation: bounce 1s infinite linear;
+        -webkit-animation: bounce 1s infinite linear;
+        animation: bounce 1s infinite linear;
+        -moz-animation-iteration-count: 2;
+        -o-animation-iteration-count: 2;
+        -webkit-animation-iteration-count: 2;
+        animation-iteration-count: 2;
+    }
+
+    @@-webkit-keyframes bounce {
+        0% {
+            top: 0;
+        }
+
+        50% {
+            top: -0.2em;
+        }
+
+        70% {
+            top: -0.3em;
+        }
+
+        100% {
+            top: 0;
+        }
+    }
+
+    @@-moz-keyframes bounce {
+        0% {
+            top: 0;
+        }
+
+        50% {
+            top: -0.2em;
+        }
+
+        70% {
+            top: -0.3em;
+        }
+
+        100% {
+            top: 0;
+        }
+    }
+
+    @@-o-keyframes bounce {
+        0% {
+            top: 0;
+        }
+
+        50% {
+            top: -0.2em;
+        }
+
+        70% {
+            top: -0.3em;
+        }
+
+        100% {
+            top: 0;
+        }
+    }
+
+    @@-ms-keyframes bounce {
+        0% {
+            top: 0;
+        }
+
+        50% {
+            top: -0.2em;
+        }
+
+        70% {
+            top: -0.3em;
+        }
+
+        100% {
+            top: 0;
+        }
+    }
+
+    @@keyframes bounce {
+        0% {
+            top: 0;
+        }
+
+        50% {
+            top: -0.2em;
+        }
+
+        70% {
+            top: -0.3em;
+        }
+
+        100% {
+            top: 0;
+        }
+    }
+
+    .fa-pulse {
+        display: inline-block;
+        -moz-animation: pulse 2s infinite linear;
+        -o-animation: pulse 2s infinite linear;
+        -webkit-animation: pulse 2s infinite linear;
+        animation: pulse 2s infinite linear;
+    }
+
+    @@-webkit-keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @@-moz-keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @@-o-keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @@-ms-keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+</style>
+
+
+<div class="panel panel-inverse">
+    <div class="panel-heading">
+        <div class="panel-heading-icon-wrapper" style="padding-top:10px;padding-left:7px;">
+            <i class="fa fa-table fa-2x"></i>
+        </div>
+        <div class="panel-heading-btn">
+            <a data-click="panel-maximize" class="btn btn-xs btn-icon btn-circle btn-default" href="javascript:;"><i class="fa fa-expand"></i></a>
+            <a data-click="panel-expand" class="btn btn-xs btn-icon btn-circle btn-warning" href="javascript:;"><i class="fa fa-minus"></i></a>
+        </div>
+        <h4 class="panel-title">Filter</h4>
+    </div>
+    <div class="panel-body px-style-preloader">
+
+        <!-- PANEL BODY -->
+        @*<div class="toolbar pull-right" style="margin-top: 10px; margin-right: 10px;">
+                <label style="font-weight: bold;">Search: <input id="crossReferenceTableSearch" type="text"></label>
+            </div>
+            <div class="clearfix"></div>*@
+
+        <div class="row filters-container" style="padding-left: 10px; padding-top: 10px">
+
+            <div class="col-md-5">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <label class="control-label input-sm" for="competitor" style="width: 160px">Competitor</label>
+                        @Html.TextBox("competitor", null, new { @class = "form-control input-sm" })                 @*, style = "width: 280px;"*@
+                    </div>
+                </div>
+                <div class="form-inline">
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label class="control-label input-sm" for="competitorItemNo" style="width: 160px;">Competitor Item</label>
+                        @Html.TextBox("competitorItemNo", null, new { @class = "form-control input-sm" })           @*, style = "width: 300px;"*@
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-md-5">
+                <div class="form-inline">
+                    <div class="form-group" style="margin-left: 5px;">
+                        <label class="control-label input-sm" for="pattersonItemNo" style="width: 160px;">Performance Health Item</label>
+                        @Html.TextBox("pattersonItemNo", null, new { @class = "form-control input-sm" })            @*, style = "width: 280px;"*@
+                    </div>
+                </div>
+                <div class="form-inline">
+                    <div class="form-group" style="margin-top: 10px; margin-left: 5px;">
+                        <label class="control-label input-sm" for="excludeCountries" style="width: 160px;">Exclude items from</label>
+                        @Html.TextBox("excludeCountries", null, new { @class = "form-control input-sm" })           @*, style = "width: 300px;"*@
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-inline">
+                    <br />
+                </div>
+                <div class="form-inline">
+                    <div class="form-group pull-right" style="padding-left: 10px;padding-top:5px;">
+                        <button id="applyFilters" class="btn btn-success btn-md" style="font-size:12px;">Apply Filters</button>
+                        <button id="clearFilters" class="btn btn-md btn-dark" style="font-size:12px;">Clear Filters</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PANEL BODY END -->
+
+    </div>
+</div>
+
+
+
+<div class="panel panel-inverse">
+    <div class="panel-heading">
+        <div class="panel-heading-icon-wrapper" style="padding-top:10px;padding-left:7px;">
+            <i class="fa fa-table fa-2x"></i>
+        </div>
+        <div class="panel-heading-btn">
+            <a data-click="panel-maximize" class="btn btn-xs btn-icon btn-circle btn-default" href="javascript:;"><i class="fa fa-expand"></i></a>
+            <a data-click="panel-expand" class="btn btn-xs btn-icon btn-circle btn-warning" href="javascript:;"><i class="fa fa-minus"></i></a>
+        </div>
+        <h4 class="panel-title">Items</h4>
+    </div>
+    <div class="panel-body px-style-preloader">
+
+        <!-- PANEL BODY -->
+
+        <div class="col-md-12">
+
+            <div style="margin-left:15px;" data-toggle="buttons" class="btn-group btn-group-xs sunequ pull-left">
+
+                @if (User.IsInRole(AdfsRole.Admin) || User.IsInRole(AdfsRole.CorpPlusDMG) || User.IsInRole(AdfsRole.Corp))
+                {
+                    @*<label id="allLabel" class="btn btn-default filterOption">
+                                    <input type="radio" value="All" id="filterBusinessUnit" name="filterBusinessUnit">All
+                                </label>
+                        buFilterChecked = true;
+                    *@
+                }
+                @if (User.IsInRole(AdfsRole.Admin) || User.IsInRole(AdfsRole.CorpPlusDMG) || User.IsInRole(AdfsRole.Corp) || User.IsInRole(AdfsRole.RoleUS))
+                {
+                    <label id="usLabel" class="btn btn-default filterOption @(buFilterChecked ? "" : "active")">
+                        <input type="radio" value="US" id="filterBusinessUnit" name="filterBusinessUnit" @(buFilterChecked ? "" : "checked=\"checked\"")>US
+                    </label>
+                    buFilterChecked = true;
+                }
+                @if (User.IsInRole(AdfsRole.Admin) || User.IsInRole(AdfsRole.CorpPlusDMG) || User.IsInRole(AdfsRole.Corp) || User.IsInRole(AdfsRole.RoleCanada))
+                {
+                    <label id="canadaLabel" class="btn btn-default filterOption @(buFilterChecked ? "" : "active")">
+                        <input type="radio" value="Canada" id="filterBusinessUnit" name="filterBusinessUnit" @(buFilterChecked ? "" : "checked=\"checked\"")>Canada
+                    </label>
+                    buFilterChecked = true;
+                }
+                @if (User.IsInRole(AdfsRole.Admin) || User.IsInRole(AdfsRole.CorpPlusDMG) || User.IsInRole(AdfsRole.Corp) || User.IsInRole(AdfsRole.RoleMedco))
+                {
+                    <label id="medcoLabel" class="btn btn-default filterOption @(buFilterChecked ? "" : "active")">
+                        <input type="radio" value="Medco" id="filterBusinessUnit" name="filterBusinessUnit" @(buFilterChecked ? "" : "checked=\"checked\"")>Medco
+                    </label>
+                    buFilterChecked = true;
+                }
+            </div>
+
+            <div class="toolbar pull-right" style="margin-top: 10px;">
+                <a id="add-cross-reference-item" class="btn btn-primary" data-toggle="modal" data-target="#add-cross-reference-item-modal"><i class="fa fa-plus-square" style="margin-right: 5px"></i>Add Intel</a>
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="table-responsive crossReferenceTableContainer lookup-table-container" style="margin-top: 10px;">
+                <table id="crossReferenceTable" class="display table" style="table-layout:fixed; width:100%;">
+                    <thead>
+                        <tr id="crossReferenceTableHiddenHeader" style="height:0px;">
+                            @*When you set table-layout: fixed than all columns takes same width as first row so set all css for first row only.*@
+                            <th style="width: 9%"></th>
+                            <th style="width: 9%"></th>
+                            <th style="width: 9%"></th>
+                            <th style="width: 9%"></th>
+                            <th style="width: 9%"></th>
+                            <th style="width: 9%"></th>
+                            <th style="width: 4%"></th>       @*UOM*@
+                            <th style="width: 4%"></th>       @*COO*@
+                            <th style="width: 4%"></th>       @*Performance Preferred*@
+                            <th style="width: 8%"></th>       @*Compatibility*@
+                            <th style="width: 4%"></th>           @*Up*@
+                            <th style="width: 4%"></th>           @*Down*@
+                            <th style="width: 9%"></th>           @*# of Times Used*@
+                            @if (User.IsInRole("admin"))
+                            {
+                                <th style="width: 9%"></th>
+                                @*Actions*@
+                            }
+                        </tr>
+
+                        <tr>
+                            <th colspan="3" class="text-center" style="background-color: #ff3333; color:#ffffff; border: 1px solid #ff3333!important; ">Competitor</th>
+                            @if (User.IsInRole("admin"))
+                            {
+                                <th colspan="11" class="text-center" style="background-color: #154b9c; color:#ffffff; border: 1px solid #154b9c!important;" name="HeaderXrefItem">Performance Health X-ref Item</th>
+                            }
+                            else
+                            {
+                                <th colspan="10" class="text-center" style="background-color: #154b9c; color:#ffffff; border: 1px solid #154b9c!important;" name="HeaderXrefItem">Performance Health X-ref Item</th>
+                            }
+                        </tr>
+
+                        <tr>
+                            <th>Name</th>
+                            <th>Item #</th>
+                            <th style="border-right: 1px solid #b6b6b6;">Item Desc.</th>
+                            <th>Item #</th>
+                            <th name="thAltItem">Alternate Item US</th>      @*Legacy No.*@
+                            @*<th>MPN</th>*@                    @*Catalog No.*@
+                            <th>Item Description</th>
+                            @*<th>Commission Cost</th>*@
+                            <th>UOM</th>
+                            <th title="Country of Origin">COO</th>
+                            <th>Perf. Preferred</th>
+                            <th>Compatibility</th>
+                            <th><i class="fa fa-thumbs-o-up" style="font-size:1.5em"></i></th>
+                            <th><i class="fa fa-thumbs-o-down" style="font-size:1.5em"></i></th>
+                            <th data-toggle="tooltip" data-placement="top" title="Number of times x-ref item has been used in an x-ref"># of Times Used</th>    @*Links*@
+                            @if (User.IsInRole("admin"))
+                            {
+                                <th>Actions</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PANEL BODY END -->
+
+    </div>
+</div>
+
+
+<div class="modal fade" id="links-data-modal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" style="width: 800px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" style="display: inline-block;">Number of times used</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row" style="margin-top: 0;">
+                    <div class="col-md-12">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-primary save-selection">Save</button>*@
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("_MorePattersonItemsModal")
+<div class="modal fade" id="edit-cross-reference-item-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" style="width: 800px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Edit Cross Reference Item</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="save btn btn-primary">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("_AddIntelModal")
+@Html.Partial("_CommentModal")
+<div class="help-content-container">
+    @Html.Partial("_HelpLookup")
+</div>
+
+@Html.Partial("_UsersVotesModal")
+
+
+@section scripts {
+
+    <script type="text/javascript">
+
+                lastAoData = null;
+                tinymce.baseURL = '@Url.Content("~/Scripts/tinymce")';
+
+                var tinyMceOptions = {
+                    plugins: ["advlist autolink link lists print hr insertdatetime textcolor textcolor colorpicker textpattern"],
+                    toolbar1: "bold italic underline strikethrough | bullist numlist | outdent indent blockquote | insertdatetime | forecolor backcolor | hr | attach",
+                    toolbar2: "alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
+                    menubar: false,
+                    toolbar_items_size: 'small'
+                };
+
+                var CrossReferenceItemsTable={
+
+                    init:function() {
+
+                        this.initEvents();
+
+                    },
+
+                    initEvents:function() {
+
+                        $("#crossReferenceTable tbody").on("click","[data-px-id=voteUp]",this.onClickVoteUp.bind(this));
+                        $("#crossReferenceTable tbody").on("click","[data-px-id=voteDown]",this.onClickVoteDown.bind(this));
+
+                        $("#crossReferenceTable tbody").on("click","[data-px-id=upVotes]",this.onClickUpVotes.bind(this));
+                        $("#crossReferenceTable tbody").on("click","[data-px-id=downVotes]",this.onClickDownVotes.bind(this));
+
+                        //_MorePattersonItems
+                        $("#morePattersonItemsTable tbody").on("click", "[data-px-id=voteUp]", this.onClickVoteUp.bind(this));
+                        $("#morePattersonItemsTable tbody").on("click", "[data-px-id=voteDown]", this.onClickVoteDown.bind(this));
+
+                        $("#morePattersonItemsTable tbody").on("click", "[data-px-id=upVotes]", this.onClickUpVotes.bind(this));
+                        $("#morePattersonItemsTable tbody").on("click", "[data-px-id=downVotes]", this.onClickDownVotes.bind(this));
+                    },
+
+                    addVote:function(data) {
+
+                        return $.postJSON('@Url.Action("AddVote", "Home")',data);
+
+                    },
+
+                    blockVotesIcons:function(id,flag) {
+
+                        var $voteDown=$("[data-px-id=voteDown][data-px-item-id="+id+"]");
+                        var $voteUp=$("[data-px-id=voteUp][data-px-item-id="+id+"]");
+
+                        if (flag) {
+                            $voteUp.addClass("px-busy");
+                            $voteDown.addClass("px-busy");
+                        } else {
+                            $voteUp.removeClass("px-busy");
+                            $voteDown.removeClass("px-busy");
+                        }
+
+                    },
+
+                    updateVotesIcons:function(data) {
+
+                        var id=data.Data.RatingVotes[0][0];
+                        var nUpVotes=data.Data.RatingVotes[0][1];
+                        var nDownVotes=data.Data.RatingVotes[0][2];
+                        var nUserVoted=data.Data.RatingVotes[0][3];
+
+                        var $voteDown=$("[data-px-id=voteDown][data-px-item-id="+id+"]");
+                        var $voteUp=$("[data-px-id=voteUp][data-px-item-id="+id+"]");
+                        var $downVotes=$("[data-px-id=downVotes][data-px-item-id="+id+"]");
+                        var $upVotes=$("[data-px-id=upVotes][data-px-item-id="+id+"]");
+
+                        $downVotes.text(nDownVotes);
+                        $upVotes.text(nUpVotes);
+
+                        if (nUserVoted==0) {
+                            $voteUp.closest('.px-style-vote-container').removeClass("px-style-voted-up");
+                            $voteDown.closest('.px-style-vote-container').removeClass("px-style-voted-down");
+                        }
+
+                        if (nUserVoted==1) {
+                            $voteUp.closest('.px-style-vote-container').addClass("px-style-voted-up");
+                            $voteDown.closest('.px-style-vote-container').removeClass("px-style-voted-down");
+                        }
+
+                        if (nUserVoted==-1) {
+                            $voteUp.closest('.px-style-vote-container').removeClass("px-style-voted-up");
+                            $voteDown.closest('.px-style-vote-container').addClass("px-style-voted-down");
+                        }
+
+                    },
+
+                    updateUpVotes:function(data) {
+                        /*
+                        var table = $('#crossReferenceTable').dataTable();
+                        table.fnDraw();
+                        */
+
+                        this.updateVotesIcons(data);
+
+                    },
+
+                    updateDownVotes:function(data) {
+                        /*
+                        var table = $('#crossReferenceTable').dataTable();
+                        table.fnDraw();
+                        */
+                        this.updateVotesIcons(data);
+                    },
+
+                    onClickVoteUp:function(evt) {
+
+                        if ($(evt.currentTarget).hasClass("px-busy")) return;
+
+                        var $this=this;
+
+                        var id=$(evt.currentTarget).attr("data-px-item-id");
+
+                        $i=$(evt.currentTarget).find("i").removeClass("fa-bounce").clone();
+                        $(evt.currentTarget).find("i").replaceWith($i);
+                        $i.addClass("fa-bounce");
+
+                        this.blockVotesIcons(id,true);
+
+                        //blockUI("Voting...");
+
+                        var p=this.addVote({
+                            id:id,
+                            voteType:1
+                        });
+
+                        p.then(function(data) {
+
+                            $this.blockVotesIcons(id,false);
+
+                            //unblockUI();
+
+                            $this.updateUpVotes(data);
+
+                        });
+
+                    },
+
+                    onClickVoteDown:function(evt) {
+
+                        if ($(evt.currentTarget).hasClass("px-busy")) return;
+
+                        var $this=this;
+
+                        var id=$(evt.currentTarget).attr("data-px-item-id");
+
+                        $i=$(evt.currentTarget).find("i").removeClass("fa-bounce").clone();
+                        $(evt.currentTarget).find("i").replaceWith($i);
+                        $i.addClass("fa-bounce");
+
+                        $this.blockVotesIcons(id,true);
+
+                        //blockUI("Voting...");
+
+                        var p=this.addVote({
+                            id:id,
+                            voteType:-1
+                        });
+
+                        p.then(function(data) {
+
+                            $this.blockVotesIcons(id,false);
+
+                            //unblockUI();
+
+                            $this.updateDownVotes(data);
+
+                        });
+
+                    },
+
+                    onClickUpVotes:function(evt) {
+                        var id=$(evt.currentTarget).attr("data-px-item-id");
+                        UsersVotesModal.setItemId(id);
+                        UsersVotesModal.show();
+                    },
+
+                    onClickDownVotes:function(evt) {
+                        var id=$(evt.currentTarget).attr("data-px-item-id");
+                        UsersVotesModal.setItemId(id);
+                        UsersVotesModal.show();
+                    }
+
+                };
+
+                $(document).ready(function () {
+
+                    initializeHelp({
+                        title: 'Look-up',
+                        content: $('.help-content-container').html(),
+                        showTooltip: @Html.Raw(JsonConvert.SerializeObject(ViewBag.ShowHelpTooltip)),
+                        increaseTooltipUrl: '@Url.Action("IncreaseTooltipShown", "Home")'
+                    });
+
+                    $('.nav-core-data').addClass('active');
+                    $('#tabCrossReferenceLookup').addClass('active');
+
+                    setupCrossReferenceTable();
+                    setupFilters();
+
+                    $('#add-to-quote-tooltip').tooltip({
+                        container: 'body'
+                    });
+
+                    setupAddCrossReferenceModal();
+
+                    CrossReferenceItemsTable.init();
+
+                    UsersVotesModal.init();
+
+                    $('input[type=radio][name=filterBusinessUnit]').change(function () {
+                        if (this.checked) {
+                            if ($(this).val() == "Medco") {
+                                $('th[name=HeaderXrefItem]').html('Medco X-ref Item');
+                                $('th[name=thAltItem]').html('Alternate Item Medco');
+                            }
+                            else if ($(this).val() == "US") {
+                                $('th[name=HeaderXrefItem]').html('Performance Health X-ref Item');
+                                $('th[name=thAltItem]').html('Alternate Item US');
+                            }
+                            else if ($(this).val() == "Canada") {
+                                $('th[name=HeaderXrefItem]').html('Performance Health X-ref Item');
+                                $('th[name=thAltItem]').html('Alternate Item Canada');
+                            }
+
+                            setupCrossReferenceTable();
+                        }
+                    });
+                });
+
+                var lastAoData = null;
+                var detailsColumnNames = null;
+                var detailsColumnNamesOriginal = null;
+                var dataTable = null;
+
+                function setupCrossReferenceTable() {
+                    var table = $('#crossReferenceTable');
+
+                    if (dataTable == null){
+                        dataTable = table.dataTable({
+                            "aLengthMenu": [10, 25, 50, 250, 500],
+                            "iDisplayLength": 25,
+                            "bFilter": true,
+                            "bLengthChange": true,
+                            "bProcessing": false,
+                            "bPaginate": true,
+                            "bServerSide": true,
+                            //"sDom": 'lr<"add-intel-container">t<"pull-left"i><"pull-right"p>',
+                            "sDom": 'lfr<"toolbar"><"actions">tip',
+                            "sPaginationType": "full_numbers",
+                            "sAjaxSource": '@Url.Action("CrossReferenceTableData", "Home")',
+                            "aaSorting": [[0, 'asc']],
+                            "bAutoWidth": false,
+                            "fnRowCallback": function (row, data) {
+
+                                $.each(data.Items, function (i, v) {
+                                    var id = v.Id;
+
+                                    var commentText = 'Add New Comment';
+                                    if (v.LastComment != null && v.LastComment.length > 0) {
+                                        commentText = '<div>Last comment by ' + v.LastCommentBy + ' on '
+                                            + v.LastCommentDateUpdated.formatJsonDate(false)
+                                            + ':</div><br/>' + v.LastComment;
+                                    }
+
+                                    var icon = $('.comment-cross-reference-item[data-id="' + id + '"]', row);
+                                    icon.tooltip({
+                                        html: true,
+                                        title: commentText,
+                                        container: 'body',
+                                        template: '<div class="tooltip tooltip-container" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+                                    });
+                                });
+
+                                //$clamp($('.competitor-name', row).get(0), {                   //AcaR for column 'CompetitorName' wrapping
+                                //    clamp: data.Items.length === 3 ? 4 : data.Items.length
+                                //});
+                            },
+
+                            "fnDrawCallback": function (oSettings) {
+                                //$('.add-intel-container').html('<div class="pull-right" style="padding-bottom: 5px;"><a id="add-cross-reference-item" class="btn btn-primary" data-toggle="modal" data-target="#add-cross-reference-item-modal"><i class="fa fa-plus-square" style="margin-right: 5px"></i>Add Intel</a></div>');
+
+                                var editButtons = $('.edit-cross-reference-item', table);
+                                setupEditCrossReferenceModal(editButtons);
+
+                                var deleteButtons = $('.delete-cross-reference-item', table);
+                                setupDeleteCrossReferenceModal(deleteButtons);
+
+                                var commentButtons = $('.comment-cross-reference-item', table);
+                                setupComments(commentButtons, {
+                                    emailAutoComplete: '@Url.Action("EmailToComplete", "Comments")',
+                                    editableComment: '@Url.Action("EditableComment", "Comments")',
+                                    editComment: '@Url.Action("EditComment", "Comments")',
+                                    deleteComment: '@Url.Action("DeleteComment", "Comments")',
+                                    renameFile: '@Url.Action("RenameFile", "Comments")',
+                                    editDescription: '@Url.Action("EditDescription", "Comments")',
+                                    deleteFile: '@Url.Action("DeleteFile", "Comments")',
+                                    filesTable: '@Url.Action("FilesTable", "Comments")',
+                                    comments: '@Url.Action("Comments", "Comments")'
+                                });
+
+                                $('[data-toggle="tooltip"]').tooltip({
+                                    template: '<div class="tooltip nav-tooltip-container" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner" style="text-align: left"></div></div>',
+                                    container: 'body'
+                                });
+
+                                $('.crossReferenceTableContainer .dataTables_filter').tooltip({
+                                    title: 'Search any data in the table (competitor name, competitor item, Performance Health item)',
+                                    container: 'body',
+                                    template: '<div class="tooltip nav-tooltip-container" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+                                });
+
+                                $('.more-patterson-items').tooltip({ container: 'body' });
+
+                                setupMorePattersonItemsModal();
+                                //setupLinksDataModal();
+                            },
+                            "fnServerData": function (sSource, aoData, fnCallback) {
+                                blockUI('Loading...');
+                                lastAoData = window.lastAoData = {
+                                    sEcho: getAoDataVal(aoData, "sEcho"),
+                                    bPaginate: true,
+                                    iDisplayLength: getAoDataVal(aoData, "iDisplayLength"),
+                                    iDisplayStart: getAoDataVal(aoData, "iDisplayStart"),
+                                    sColumnName: getAoDataVal(aoData, "mDataProp_" + getAoDataVal(aoData, "iSortCol_0")),
+                                    sSortColDir: getAoDataVal(aoData, "sSortDir_0"),
+                                    sSearch: getAoDataVal(aoData, "sSearch")
+                                };
+                                $.postJSON(sSource, {
+                                    aoData: lastAoData,
+                                    filter: getFilterValues()
+                                }, function (data) {
+
+                                    //debugger;
+                                    if(lastAoData != null){
+
+                                        detailsColumnNames = ["MaxItemNo", "MaxItemLegacyNo", "MaxItemDescription", "MaxUOM", "MaxCOO","MaxPerformancePreferred", "MaxItemEquivalencyCode", "MaxLike", "MaxDislike", "MaxLinks"];
+                                        detailsColumnNamesOriginal = ["PattersonItemNo", "PattersonItemLegacyNo", "PattersonItemDescription", "UOM", "CountryCode", "PerformancePreferred", "PattersonItemEquivalencyCode", "VotingLike", "VotingDislike", "Links"];
+                                        var i = detailsColumnNames.indexOf(lastAoData.sColumnName);
+
+                                        if(i >= 0){
+                                            $.each(data.aaData, function (index, value) {
+                                                if(lastAoData.sSortColDir == "asc"){
+                                                    value.Items.sort(function(a, b){
+                                                        return a[detailsColumnNamesOriginal[i]] > b[detailsColumnNamesOriginal[i]];
+                                                    });
+                                                }
+                                                else{
+                                                    value.Items.sort(function(a, b){
+                                                        return b[detailsColumnNamesOriginal[i]] > a[detailsColumnNamesOriginal[i]];
+                                                    });
+                                                }
+                                            });
+                                        }
+
+                                    }
+
+                                    fnCallback(data);
+
+                                    unblockUI();
+                                });
+                            },
+                            "aoColumns": [
+                                {
+                                    "mDataProp": "CompetitorName",
+                                    "mRender": function(data, display, row) {
+                                        var competitorName = row.CompetitorName;
+                                        return '<div style="position: relative; word-wrap:break-word;" class="competitor-name" title="' + competitorName + '">' + competitorName + '</div>';
+                                    },
+                                    "bSortable": true
+                                },
+                                {
+                                    "mDataProp": "CompetitorItemNo",
+                                    "mRender": function(data, display, row) {
+                                        var competitorName = row.CompetitorName != null ? row.CompetitorName : '';
+                                        var competitorItemNo = row.CompetitorItemNo != null ? row.CompetitorItemNo : '';
+
+                                        var url = 'http://www.google.com/webhp?output=search&gws_rd=ssl#q=' + encodeURIComponent(competitorName + ' ' + competitorItemNo); // + '&tbm=shop' &tbm=shop
+
+                                        return '<div style="position: relative; word-wrap:break-word;">' +
+                                                    '<span style="position:absolute; cursor:pointer;"><a target="_blank" title="Google Search" href="' + url + '"><img style="cursor:pointer;" src="@Url.Content("~/Content/Images/GoogleLogo.png")"></a></span>'+
+                                                    '<span style="margin-left: 22px;">' + competitorItemNo + '</span>' +
+                                                '</div>';
+                                    },
+                                    "bSortable": true,
+                                },
+                                {
+                                    "mDataProp": "CompetitorItemDescription",
+                                    "mRender": function(data, display, row) {
+                                        var competitorItemDescription = row.CompetitorItemDescription != null ? row.CompetitorItemDescription : '-';
+
+                                        return '<div style="position: relative; word-wrap:break-word;" title="' + htmlEscape(competitorItemDescription) + '">' + competitorItemDescription + '</div>';   //class="item-description-ellipsis"
+                                    },
+                                    "bSortable": true,
+                                    "sWidth": '180px',
+                                    "sClass": 'item-description-ellipsis-container width-100 rightborder'
+                                },
+                                // svaka celija mora da sadrzi najmanje 3 div-a zbog tabelarnog prikaza!!!
+                                {
+                                    "mDataProp": "MaxItemNo",       //PattersonItemNo
+                                    "mRender": function(data, display, row) {
+                                        var html = '';
+
+                                        var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                        for (var i = 0; i < length; i++) {
+                                            var v = row.Items[i];
+
+                                            var itemNo = v.PattersonItemNo != null ? formatPattersonItemNumber(v.PattersonItemNo) : '';
+
+                                            var url = 'http://www.google.com/webhp?output=search&gws_rd=ssl#q=' + encodeURIComponent(v.PattersonItemDescription);    // + '&tbm=shop' &tbm=shop
+
+                                            html += '<div class="patterson-item-reference patterson-item-reference-' + length +'"><div style="width: 72px;"><div>'+
+                                                        '<span style="position:absolute; cursor:pointer;"><a target="_blank" title="Google Search" href="' + url + '"><img style="cursor:pointer;" src="@Url.Content("~/Content/Images/GoogleLogo.png")"></a></span>'+
+                                                        '<span style="margin-left:22px;"><a href="https://www.performancehealth.com/catalogsearch/result/?q=' + itemNo + '" target="_blank" title="Go to Performance Health website">' + itemNo + '</a></span>' +
+                                                    '</div></div></div>';
+                                        }
+                                        if (row.Items.length > 3) {
+                                            html += '<div class="more-patterson-items-container"><a class="more-patterson-items" title="Click to see more" href="javascript:void(0)"><i class="fa fa-ellipsis-h"></i></a></div>';
+                                        }
+
+                                        return html;
+                                    },
+                                    "bSortable": true,
+                                    "sClass": 'no-wrap pos-relative',
+                                    "sWidth": '100px'
+                                },
+                            {
+                                "mDataProp": "MaxItemLegacyNo",       //PattersonItemLegacyNo     -- Alternate Item US
+                                "mRender": function(data, display, row) {
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+                                        var v = row.Items[i];
+
+                                        var pattersonItemLegacyNo = v.PattersonItemLegacyNo != null ? v.PattersonItemLegacyNo : '';
+
+                                        html += '<div class="patterson-item-reference patterson-item-reference-' + length + '"><div><div>' + pattersonItemLegacyNo + '</div></div></div>'; // legacy item #
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sClass": 'no-wrap'
+                            },
+                            //{
+                            //    "mDataProp": "Items",       //PattersonItemCatalogNo
+                            //    "mRender": function(data, display, row) {
+                            //        var html = '';
+
+                            //        var length = row.Items.length <= 3 ? row.Items.length : 3;
+                            //        for (var i = 0; i < length; i++) {
+                            //            var v = row.Items[i];
+
+                            //            var pattersonItemCatalogNo = v.PattersonItemCatalogNo != null ? v.PattersonItemCatalogNo : '-';
+                            //            var pattersonItemVendor = v.PattersonItemVendor != null ? v.PattersonItemVendor : '';
+
+                            //            var tooltip = 'Vendor: ' + pattersonItemVendor + ', Catalog No.:' + pattersonItemCatalogNo;
+
+                            //            html += '<div class="patterson-item-reference patterson-item-reference-' + length + '"><div  title="' + tooltip + '">' + pattersonItemCatalogNo + '</div></div>';   //class="supplier-catalog-no"
+                            //        }
+                            //        if (row.Items.length > 3) {
+                            //            html += '<div class="more-patterson-items-container-empty"></div>';
+                            //        }
+
+                            //        return html;
+                            //    },
+                            //    "bUseRendered": false,
+                            //    "bSortable": false,
+                            //    "sClass": 'no-wrap',
+                            //    "sWidth": '80px'
+                            //},
+                            {
+                                "mDataProp": "MaxItemDescription",       //PattersonItemDescription
+                                "mRender": function(data, display, row) {
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+                                        var v = row.Items[i];
+
+                                        var pattersonItemDescription = v.PattersonItemDescription != null ? v.PattersonItemDescription : '-';
+
+                                        html += '<div class="patterson-item-reference patterson-item-reference-' + length + '"><div title="' + htmlEscape(pattersonItemDescription) + '"><div>' + pattersonItemDescription + '</div></div></div>';    //class="item-description-ellipsis"
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sWidth": '180px',
+                                "sClass": 'item-description-ellipsis-container width-100'
+                            },
+
+                            //{
+                            //    "mDataProp": "Items",       // Commission Cost
+                            //    "mRender": function(data, display, row) {
+                            //        var html = '';
+
+                            //        var length = row.Items.length <= 3 ? row.Items.length : 3;
+                            //        for (var i = 0; i < length; i++) {
+                            //            var v = row.Items[i];
+
+                            //            var cost1 = v.CommissionCostUS  != null ? 'US:' + v.CommissionCostUS.formatMoney(2, '.', ',', '$') : '';
+                            //            var cost2 = v.CommissionCostCAD != null ? 'CAD:'+ v.CommissionCostCAD.formatMoney(2, '.', ',', '$') : '';
+
+                            //            html += '<div class="text-right patterson-item-reference patterson-item-reference-' + length + '">' + cost1 + '</div>';
+                            //            html += '<div class="text-right patterson-item-reference patterson-item-reference-' + length + '">' + cost2 + '</div>';
+                            //        }
+                            //        if (row.Items.length > 3) {
+                            //            html += '<div class="more-patterson-items-container-empty"></div>';
+                            //        }
+
+                            //        return html;
+                            //    },
+                            //    "bSortable": false,
+                            //    "sWidth": '30px',
+                            //},
+
+                            //{
+                            //    "mDataProp": "Items",       //UOM
+                            //    "mRender": function(data, display, row) {
+                            //        var html = '';
+
+                            //        var length = row.Items.length <= 3 ? row.Items.length : 3;
+                            //        for (var i = 0; i < length; i++) {
+                            //            var v = row.Items[i];
+
+                            //            var uom = v.UOM != null ? v.UOM : '';
+
+                            //            html += '<div class="patterson-item-reference patterson-item-reference-' + length + '">' + uom + '</div>';
+                            //        }
+                            //        if (row.Items.length > 3) {
+                            //            html += '<div class="more-patterson-items-container-empty"></div>';
+                            //        }
+
+                            //        return html;
+                            //    },
+                            //    "bUseRendered": false,
+                            //    "bSortable": false,
+                            //    "sWidth": '30px'
+                            //},
+
+                            {
+                                "mDataProp": "MaxUOM",       //UOM
+                                "mRender": function(data, display, row) {
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+                                        var v = row.Items[i];
+
+                                        var uom = v.UOM != null ? v.UOM : '';
+
+                                        html += '<div class="patterson-item-reference patterson-item-reference-' + length + '"><div><div>' + uom + '</div></div></div>';
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sWidth": '30px',
+                                "sClass": "text-center"
+                            },
+
+                            {
+                                "mDataProp": "MaxCOO",       // COO
+                                "mRender": function(data, display, row) {
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+                                        var v = row.Items[i];
+
+                                        var countryCode;
+                                        var countryName;
+                                        if (v.CountryName !== 'Unknown') {
+                                            countryCode = v.CountryCode;
+                                            countryName = v.CountryName;
+                                        } else {
+                                            countryCode = 'N/A';
+                                            countryName = v.CountryName;
+                                        }
+
+                                        html += '<div class="patterson-item-reference patterson-item-reference-' + length + '">' + '<div><div><span title="' + countryName + '">' + countryCode + '</span></div></div></div>';
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sWidth": '30px',
+                                "sClass": "text-center"
+                                },
+                              {
+                                "mDataProp": "MaxPerformancePreferred",           // Performance Preferred
+                                "mRender": function(data, display, row) {
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+                                        var v = row.Items[i];
+
+                                        var performancePreferred = v.PerformancePreferred ? v.PerformancePreferred : '';
+
+                                        html += '<div class="patterson-item-reference patterson-item-reference-' + length + '"><div><div>' + performancePreferred + '</div></div></div>';
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                  "bSortable": true,
+                                  "sClass": "text-center"
+                            },
+                            {
+                                "mDataProp": "MaxItemEquivalencyCode",           // Compatibility
+                                "mRender": function(data, display, row) {
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+                                        var v = row.Items[i];
+
+                                        var pattersonEquivalencyCode = v.PattersonItemEquivalencyCode ? v.PattersonItemEquivalencyCode : '';
+
+                                        //var dropdownHtml = getEquivalencyCodeDropDownHtml(v.Id, pattersonEquivalencyCode);
+                                        //html += '<div class="patterson-item-reference patterson-item-reference-' + length + '">' + dropdownHtml + '</div>';
+
+                                        html += '<div class="patterson-item-reference patterson-item-reference-' + length + '"><div><div>' + pattersonEquivalencyCode + '</div></div></div>';
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sClass": "text-center"
+                            },
+
+                            {
+                                "mDataProp": "MaxLike",               // thumbs-up
+                                "mRender": function(data, display, row) {
+
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+
+                                        var v = row.Items[i];
+                                        var voteNum = v.VotingLike==null ? 0 : v.VotingLike;
+
+                                        if (v.Vote==1) {
+                                            html+='<div class="patterson-item-reference patterson-item-reference-' + length + ' px-style-vote-container px-style-voted-up"><div><div>';
+                                        } else {
+                                            html+='<div class="patterson-item-reference patterson-item-reference-' + length + ' px-style-vote-container"><div><div>';
+                                        }
+
+                                        html+='<a href="javascript:;" data-px-id="voteUp" class="px-style-btn-circle" data-px-item-id="'+v.Id+'"><i class="fa fa-thumbs-o-up" ></i></a>';
+                                        html+='<a href="javascript:;" style="margin-left:11px;" data-px-id="upVotes" data-px-item-id="'+v.Id+'">'+voteNum+'</a>';
+                                        html+='</div></div></div>';
+
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sClass": "no-wrap td-no-padding"
+                            },
+                            {
+                                "mDataProp": "MaxDislike",               // thumbs-down
+                                "mRender": function(data, display, row) {
+
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+
+                                        var v = row.Items[i];
+                                        var voteNum = v.VotingDislike==null?0:v.VotingDislike;
+
+                                        if (v.Vote==-1) {
+                                            html+='<div class="patterson-item-reference patterson-item-reference-' + length + ' px-style-vote-container px-style-voted-down"><div><div>';
+                                        } else {
+                                            html+='<div class="patterson-item-reference patterson-item-reference-' + length + ' px-style-vote-container"><div><div>';
+                                        }
+
+                                        html+='<a href="javascript:;" data-px-id="voteDown" class="px-style-btn-circle" data-px-item-id="'+v.Id+'"><i class="fa fa-thumbs-o-down" ></i></a>';
+                                        html+='<a href="javascript:;" style="margin-left:11px;" data-px-id="downVotes" data-px-item-id="'+v.Id+'">'+voteNum+'</a>';
+                                        html+='</div></div></div>';
+
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sClass": "no-wrap td-no-padding"
+                            },
+
+                            {
+                                "mDataProp": "MaxLinks",       //Links
+                                "mRender": function(data, display, row) {
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+                                        var v = row.Items[i];
+
+                                        var links = v.Links != null ? v.Links : '';
+
+                                        onClickLinks = links != 0
+                                            ? '<a class="links-data" onclick="SubItemClicked(' + v.Id + ')" href="javascript:void(0)" data-id="' + v.Id + '">' + links + '</a>'
+                                            : '<div data-id="' + v.Id + '">' + links + '</div>';
+
+                                        html += '<div class="patterson-item-reference patterson-item-reference-' + length + '"><div><div>' + onClickLinks + '</div></div></div>';
+
+                                        //html += '<div class="patterson-item-reference patterson-item-reference-' + length + '">' + '<span data-toggle="tooltip" data-placement="top" title="Number of times x-ref item has been used in an x-ref">' + links + '</span>' + '</div>';
+                                        //html += '<div class="patterson-item-reference patterson-item-reference-' + length + '"><div><div>' +
+                                        //            '<a class="links-data" onclick="SubItemClicked(' + v.Id + ')" href="javascript:void(0)" data-id="' + v.Id + '">' + links + '</a>' +
+                                        //        '</div></div></div>';
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sClass": "text-center"
+                            }
+                            @if (User.IsInRole("admin"))
+                        {
+                        <text>
+                            ,{
+                                "mDataProp": "Items",
+                                "mRender": function(data, display, row) {
+                                    var html = '';
+
+                                    var length = row.Items.length <= 3 ? row.Items.length : 3;
+                                    for (var i = 0; i < length; i++) {
+                                        var v = row.Items[i];
+
+                                        var commentClass = v.HasComments ? 'fa-comment' : 'fa-comment-o';
+
+                                        /*
+                                        html+='<div class="patterson-item-reference patterson-item-reference-' + length + '">';
+                                        html+='<div class="btn-group btn-group-xs" role="group" style="width:100px;">';
+                                        html+='<a class="edit-cross-reference-item btn btn-default btn-xs" title="Edit" href="javascript:void(0)" data-id="' + v.Id + '"><span class="glyphicon glyphicon-pencil"></span></a>';
+                                        html+='<a class="delete-cross-reference-item btn btn-default btn-xs" title="Delete" href="javascript:void(0)" data-id="' + v.Id + '"><span class="glyphicon glyphicon-trash"></span></a>';
+                                        html+='<a class="comment-cross-reference-item btn btn-default btn-xs" href="javascript:void(0)" data-id="' + v.Id +'"><i class="cross-reference-icon fa ' + commentClass + '"></i></a>';
+                                        html+='</div>';
+                                        html+='</div>';
+                                        */
+
+                                        html += '<div class="patterson-item-reference patterson-item-reference-' + length + '"><div><div>';
+                                        html += '<div class="btn-group btn-group-xs" role="group" style="width:92px;">';
+                                        html += '<button class="edit-cross-reference-item btn btn-default btn-xs" title="Edit" href="javascript:void(0)" data-id="' + v.Id + '"><span class="glyphicon glyphicon-pencil"></span></button>';
+                                        html += '<button class="delete-cross-reference-item btn btn-default btn-xs" title="Delete" href="javascript:void(0)" data-id="' + v.Id + '"><span class="glyphicon glyphicon-trash"></span></button>';
+                                        html += '<button class="comment-cross-reference-item btn btn-default btn-xs" href="javascript:void(0)" data-id="' + v.Id + '"><i class="cross-reference-icon fa ' + commentClass + '"></i></button>';
+                                        html += '</div>';
+                                        html += '</div></div></div>';
+                                    }
+                                    if (row.Items.length > 3) {
+                                        html += '<div class="more-patterson-items-container-empty"></div>';
+                                    }
+
+                                    return html;
+                                },
+                                "bSortable": false,
+                                "sClass": "no-wrap text-center"
+                            }
+                            </text>
+                            }
+                            ]
+                        });
+
+                        //var searchHandler = function (e) {
+                        //    if (isCharacterKeyPress(e)) {
+                        //        dataTable.fnFilter($(this).val());
+                        //    }
+                        //}
+                        //$('#crossReferenceTableSearch').off('keyup').on('keyup', _.debounce(searchHandler, 1000));
+
+                        dataTable.fnSetFilteringDelay(1000);
+
+                        return dataTable;
+                    }
+                    else {
+                        dataTable.fnDraw();
+                    }
+                }
+
+
+
+
+                function setupEditCrossReferenceModal(button) {
+                    button.on('click', function () {
+                        var id = $(this).data('id');
+
+                        var modal = $('#edit-cross-reference-item-modal');
+                        modal.modal({
+                            show: false
+                        });
+
+
+                        $('.modal-header', modal).css('cursor', 'move');
+                        $('.modal-dialog', modal).draggable({
+                            handle: '.modal-header',
+                            cursor: 'move'
+                        });
+                        var saveButton = $('.save', modal);
+                        var modalBody = $('.modal-body .col-md-12', modal);
+                        $('#edit-cross-reference-item-modal').off('hidden.bs.modal').on('hidden.bs.modal', function () {    // praznim body modalnog dijaloga jer se otvara jos jedan(add-) sa istim body-jem
+                            modalBody.empty();
+                        });
+                        blockUI('Please wait...');
+
+                        $.ajax({
+                            url: '@Url.Action("EditCrossReferenceItem")',
+                            type: 'GET',
+                            data: {
+                                id: id
+                            },
+                            dataType: 'html',
+                            success: function (result) {
+                                modalBody.html(result);
+
+                                setupModal(modal);
+
+                                saveButton.off('click').on('click', function () {
+                                    var form = $('form', modalBody);
+                                    form.ajaxSubmit({
+                                        success: function (data) {
+                                            if (data && data.success) {
+                                                modal.modal('hide');
+
+                                                $('#crossReferenceTable').dataTable().fnDraw();
+                                                if ($('#morePattersonItemsTable').length != 0) {
+                                                    $('#morePattersonItemsTable').dataTable().fnDraw();
+                                                }
+                                            } else {
+                                                modalBody.html(data);
+
+                                                setupModal(modal);
+                                            }
+                                        }
+                                    });
+                                });
+
+                                $.unblockUI();
+                                modal.modal('show');
+                            },
+                            error: defaultErrorHandler
+                        });
+                    });
+                }
+
+
+
+                function setupDeleteCrossReferenceModal(buttons) {
+                    buttons.on('click', function () {
+                        var id = $(this).data('id');
+
+                        bootbox.confirm({
+                            message: 'Are you sure you want to delete selected item? <br/><br/>Item will be <strong>permanently</strong> removed from the database.',
+                            callback: function (result) {
+                                if (result) {
+                                    blockUI('Please wait...');
+                                    $.ajax({
+                                        url: '@Url.Action("DeleteCrossReferenceItem")',
+                                        type: 'POST',
+                                        data: {
+                                            id: id
+                                        },
+                                        dataType: 'html',
+                                        success: function (result) {
+                                            $.unblockUI();
+
+                                            $('#crossReferenceTable').dataTable().fnDraw();
+                                            if ($('#morePattersonItemsTable').length != 0) {
+                                                $('#morePattersonItemsTable').dataTable().fnDraw();
+                                            }
+                                        },
+                                        error: defaultErrorHandler
+                                    });
+                                }
+                            },
+                            buttons: {
+                                confirm: {
+                                    label: 'Delete',
+                                    className: 'btn-danger'
+                                }
+                            }
+                        });
+                    });
+                }
+
+
+
+                function setupModal(modal) {
+                    var itemSearchUrl = '@Url.Action("ItemSearchExt", "Home")';
+
+                    var pattersonItemNo = $('#PattersonItemNo', modal);
+                    var pattersonItemDesc = $('#PattersonItemDescription', modal);
+                    var pattersonItemLegacyNo = $('#PattersonItemLegacyNo', modal);
+                    setupItemSelect(pattersonItemNo, pattersonItemDesc, pattersonItemLegacyNo, itemSearchUrl);
+
+                    var typeaheadOptions = {
+                        minLength: 1,
+                        highlight: true,
+                        hint: true
+                    };
+                    var typeaheadSourceOptions = {
+                        displayKey: 'CompetitorName',
+                        source: _.debounce(function (query, process) {
+                            $.post('@Url.Action("CompetitorAutoComplete")', { query: query }, function (data) {
+                                return process(data.Data);
+                            });
+                        }, 200)
+                    };
+                    var competitorName = $('#CompetitorName');
+                    competitorName.typeahead('destroy');
+                    competitorName.typeahead(typeaheadOptions, typeaheadSourceOptions);
+                }
+
+                //function setupItemSelect(itemNumber, itemDescription, itemLegacyNumber, url) {
+                //    var selectOptions = {
+                //        placeholder: "Item Number or Description",
+                //        minimumInputLength: 0,
+                //        allowClear: true,
+                //        ajax: {
+                //            url: url,
+                //            type: 'POST',
+                //            dataType: 'json',
+                //            data: function (term, page) {
+                //                return {
+                //                    SearchQuery: term,
+                //                    MPN: $('#ManufacturingPartNumber3').val(),
+                //                    page: page
+                //                };
+                //            },
+                //            results: function (data, page) {
+                //                var more = (page * 30) < data.total;
+
+                //                var results = data.results.map(function (item) {
+                //                    return {
+                //                        id: item.ItemNo,
+                //                        text: item.ItemNoString,
+                //                        dataObject: item
+                //                    };
+                //                });
+
+                //                return { results: results, more: more };
+                //            },
+                //            quietMillis: 400
+                //        },
+                //        formatResult: function (item) {
+                //            var itemNoString = item.dataObject.ItemNoString;
+                //            var legacyItemNo = item.dataObject.LegacyItemNo;
+                //            var description = item.dataObject.ItemDescription;
+
+                //            return itemNoString + (legacyItemNo != null ? ' (' + legacyItemNo + ')' : '') + ' - ' + description;
+                //        },
+                //        width: itemNumber.css('width'),
+                //        dropdownCssClass: 'md-dropdown ' + itemNumber.attr('id') + '-select2-drop'
+                //    };
+
+                //    if (itemNumber.data('id')) {
+                //        $.extend(selectOptions, {
+                //            initSelection: function (element, callback) {
+                //                callback({
+                //                    id: itemNumber.data('id'),
+                //                    text: formatPattersonItemNumber(itemNumber.data('id'))
+                //                });
+                //            }
+                //        });
+                //    }
+
+                //    itemNumber.select2(selectOptions);
+                //    itemNumber.on('change', function (e) {
+                //        if(typeof e.added != 'undefined'){
+                //            var data = e.added.dataObject;
+                //            itemDescription.val(data.ItemDescription);
+                //            itemLegacyNumber.val(data.LegacyItemNo);
+                //            $('#ManufacturingPartNumber3').select2('data', { id: data.ManufactPartNum, text: data.ManufactPartNum });
+                //        }
+                //        else{
+                //            itemDescription.val('');
+                //            itemLegacyNumber.val('');
+                //        }
+                //    });
+                //    itemNumber.parent().find('button[data-select2-open]').click(function () {
+                //        $('#' + $(this).data('select2-open')).select2('open');
+                //    });
+                //}
+
+
+
+
+                function setupFilters() {
+
+                    var competitor = $('#competitor');
+                    competitor.select2(getFilterOptions({
+                        multiple: true,
+                        closeOnSelect:false,
+                        ajax: {
+                            url: '@Url.Action("CompetitorSearchExt", "Home")',
+                            data: function (term, page) {
+                                return {
+                                    searchQuery: term,
+                                    page:page
+                                };
+                            },
+                            quietMillis: 400,
+                            results:  function (data, page)
+                            {
+                                var more = (page * 10) < data.total;
+                                return { results: data.results, more: more };
+                            }
+                        },
+                        width: "300px",
+
+                    }));
+                    competitor.on('change', function () {
+                        $('#competitorItemNo').select2('val', '');
+                    });
+
+                    var competitorItem = $('#competitorItemNo');
+                    competitorItem.select2(getFilterOptions({
+                        multiple: true,
+                        closeOnSelect:false,
+                        ajax: {
+                            url: '@Url.Action("CompetitorItemSearchExt", "Home")',
+                            data: function (term, page) {
+                                return {
+                                    searchQuery: term,
+                                    competitor: $('#competitor').select2('val'),
+                                    page:page
+                                };
+                            },
+                            quietMillis: 400,
+                            results: function(data, page)
+                            {
+                                var more = (page * 10) < data.total;
+                                return { results: data.results, more: more };
+                            }
+                        },
+                        formatResult: function (result) {
+                            return result.text + ' (' + result.id + ')';
+                        },
+                        formatSelection: function (data, container, escapeFn) {
+                            var text = data.text + ' (' + data.id + ')';
+
+                            container.attr('title', text).text(text);
+                        },
+                        formatNoMatches: function() {
+                            var hasSelectedCompetitors = $('#competitor').select2('data') != null;
+                            if (hasSelectedCompetitors) {
+                                return 'No matches found. To expand search, please clear selected competitor above and search for item again.'
+                            }
+
+                            return 'No matches found.'
+                        },
+                        width: '300px'
+                    }));
+
+                    var pattersonItemNo = $('#pattersonItemNo');
+                    pattersonItemNo.select2(getFilterOptions({
+                        multiple: true,
+                        closeOnSelect: false,
+                        ajax: {
+                            url: '@Url.Action("PattersonItemSearchExt", "Home")',
+                            data: function (term, page) {
+                                return {
+                                    page: page,
+                                    searchQuery: term
+                                };
+                            },
+                            results: function (data, page) {
+                                var more = (page * 10) < data.total;
+                                var results = data.results.map(function (item) {
+                                    return {
+                                        id: item.ItemNo,
+                                        text: item.ItemNoString,
+                                        dataObject: item,
+                                    };
+                                });
+
+                                return { results: results, more: more };
+                            },
+                            quietMillis: 400
+                        },
+                        formatResult: function (data) {
+                            var itemNoString = data.dataObject.ItemNoString;
+                            var legacyItemNo = data.dataObject.LegacyItemNo;
+                            var description = data.dataObject.ItemDescription;
+                            var altItemCa = data.dataObject.AlternateItemCanada;
+                            var altItemMe = data.dataObject.AlternateItemMedco;
+
+                            var alternateItem = '';
+                            if (legacyItemNo || altItemCa || altItemMe)     // legacyItemNo != null && legacyItemNo != ''
+                            {
+                                alternateItem = ' (';
+                                if (legacyItemNo)
+                                    alternateItem = alternateItem + 'US:'+legacyItemNo;
+                                if (altItemCa)
+                                    alternateItem = alternateItem + ' CA:'+altItemCa;
+                                if (altItemMe)
+                                    alternateItem = alternateItem + ' ME:'+altItemMe;
+                                alternateItem = alternateItem + ')';
+                            }
+
+                            return itemNoString + alternateItem + ' - ' + description;
+                        },
+                        formatSelection: function (data, container, escapeFn) {
+                            var itemNoString = data.dataObject.ItemNoString;
+                            var legacyItemNo = data.dataObject.LegacyItemNo;
+                            var description = data.dataObject.ItemDescription;
+                            var altItemCa = data.dataObject.AlternateItemCanada;
+                            var altItemMe = data.dataObject.AlternateItemMedco;
+
+                            var alternateItem = '';
+                            if (legacyItemNo || altItemCa || altItemMe)     // legacyItemNo != null && legacyItemNo != ''
+                            {
+                                alternateItem = ' (';
+                                if (legacyItemNo)
+                                    alternateItem = alternateItem + 'US:'+legacyItemNo;
+                                if (altItemCa)
+                                    alternateItem = alternateItem + ' CA:'+altItemCa;
+                                if (altItemMe)
+                                    alternateItem = alternateItem + ' ME:'+altItemMe;
+                                alternateItem = alternateItem + ')';
+                            }
+
+                            var text = itemNoString + alternateItem + ' - ' + description;
+
+                            container.attr('title', text).text(text);
+                        },
+                        width: '300px'
+                    }));
+
+                    var excludeCountries = $('#excludeCountries');
+                    excludeCountries.select2(getFilterOptions({
+                        multiple: true,
+                        placeholder: 'Select one or more countries',
+                        ajax: {
+                            url: '@Url.Action("CountrySearch", "Home")',
+                            data: function (term) {
+                                return {
+                                    searchQuery: term
+                                };
+                            },
+                            quietMillis: 400
+                        },
+                        formatResult: function (result) {
+                            return result.text + ' (' + result.id + ')';
+                        },
+                        formatSelection: function (data, container, escapeFn) {
+                            var text = data.text + ' (' + data.id + ')';
+
+                            container.attr('title', text).text(text);
+                        },
+                        width: '300px'
+                    }));
+
+                    $('#applyFilters').on('click', function () {
+                        $('#crossReferenceTable').dataTable().fnDraw();
+                    });
+
+                    $('#clearFilters').on('click', function () {
+                        competitor.select2('val', '');
+                        competitorItem.select2('val', '');
+                        pattersonItemNo.select2('val', '');
+                        excludeCountries.select2('val', '');
+
+                        $('#crossReferenceTable').dataTable().fnDraw();
+                    });
+                }
+
+
+
+                function getFilterValues() {
+                    return {
+                        Competitor: $('#competitor').val(),
+                        CompetitorItemNo: $('#competitorItemNo').select2('data').map(function (k) { return k.id }),
+                        PattersonItemNo: $('#pattersonItemNo').val(),
+                        ExcludeCountries: $('#excludeCountries').select2('data').map(function (k) { return k.text }),
+                        BusinessUnit: $("input[name=filterBusinessUnit]:checked").val()
+                    }
+                }
+
+
+
+                function setupMorePattersonItemsModal() {
+                    var buttons = $('.more-patterson-items');
+
+                    buttons.on('click', function () {
+                        var rowData = getRowData(this);
+                        var competitorId = rowData.CompetitorId;
+                        var competitorName = rowData.CompetitorName;
+                        var competitorItemNo = rowData.CompetitorItemNo;
+                        var excludingItems = [];
+                        var length = rowData.Items.length <= 3 ? rowData.Items.length : 3;
+                        for (var i = 0; i < length; i++) {
+                            excludingItems.push(rowData.Items[i].PattersonItemNo);
+                        }
+
+                        var modal = $('#more-patterson-items-modal');
+                        modal.modal({
+                            show: false
+                        });
+                        $('.modal-header', modal).css('cursor', 'move');
+                        $('.modal-dialog', modal).draggable({
+                            handle: '.modal-header',
+                            cursor: 'move'
+                        });
+                        //modal.off('hide.bs.modal').on('hide.bs.modal', function () {
+                        //    $('#quotesDetailsTable').dataTable().fnDraw();
+                        //});
+
+                        var modalBody = $('.modal-body .col-md-12', modal);
+
+                        blockUI('Please wait...');
+                        $.ajax({
+                            url: '@Url.Action("MorePattersonItems")',
+                            type: 'GET',
+                            dataType: 'html',
+                            success: function (result) {
+                                modalBody.html(result);
+
+                                setupMorePattersonItemsTable(competitorId, competitorName, competitorItemNo, excludingItems , modal);
+
+                                CrossReferenceItemsTable.init();
+
+                                modal.modal('show');
+                            },
+                            error: defaultErrorHandler
+                        });
+                    });
+                }
+
+
+
+                function setupMorePattersonItemsTable(competitorId, competitorName, competitorItemNo, excludingItems, modal) {
+
+                    var i = -100;
+                    if (detailsColumnNames != null && detailsColumnNamesOriginal != null && lastAoData != null)
+                        var i = detailsColumnNames.indexOf(lastAoData.sColumnName);
+
+                    if (i >= 0)
+                        var arraySort = [[i, lastAoData.sSortColDir]];
+                    else
+                        var arraySort = [[1, 'asc']];
+
+
+                    var table = $('#morePattersonItemsTable', modal);
+                    var dataTable = table.dataTable({
+                        "bDestroy": true,
+                        "aLengthMenu": [5, 10, 25, 50, 250, 500],
+                        "iDisplayLength": 10,
+                        "bFilter": true,
+                        "bLengthChange": true,
+                        "bProcessing": false,
+                        "bPaginate": true,
+                        "bServerSide": true,
+                        "sDom": 'lfr<"toolbar"><"actions">t<"pull-left"i><"pull-right"p>',
+                        "sPaginationType": "full_numbers",
+                        "sAjaxSource": '@Url.Action("MorePattersonItemsTableData", "Home")',
+                        "aaSorting": arraySort, //[[1, 'asc']],
+                        "fnRowCallback": function (row, data) {
+                            var commentText = 'Add New Comment';
+                            if (data.LastComment != null && data.LastComment.length > 0) {
+                                commentText = '<div>Last comment by ' + data.LastCommentBy + ' on '
+                                    + data.LastCommentDateUpdated.formatJsonDate(false)
+                                    + ':</div><br/>' + data.LastComment;
+                            }
+
+                            var icon = $('.comment-cross-reference-item', row);
+                            icon.tooltip({
+                                html: true,
+                                title: commentText,
+                                container: 'body',
+                                template: '<div class="tooltip tooltip-container" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+                            });
+                        },
+                        "fnDrawCallback": function (oSettings) {
+                            var editButtons = $('.edit-cross-reference-item', table);
+                            setupEditCrossReferenceModal(editButtons);
+
+                            var deleteButtons = $('.delete-cross-reference-item', table);
+                            setupDeleteCrossReferenceModal(deleteButtons);
+
+                            var commentButtons = $('.comment-cross-reference-item', table);
+                            setupComments(commentButtons, {
+                                emailAutoComplete: '@Url.Action("EmailToComplete", "Comments")',
+                                editableComment: '@Url.Action("EditableComment", "Comments")',
+                                editComment: '@Url.Action("EditComment", "Comments")',
+                                deleteComment: '@Url.Action("DeleteComment", "Comments")',
+                                renameFile: '@Url.Action("RenameFile", "Comments")',
+                                editDescription: '@Url.Action("EditDescription", "Comments")',
+                                deleteFile: '@Url.Action("DeleteFile", "Comments")',
+                                filesTable: '@Url.Action("FilesTable", "Comments")',
+                                comments: '@Url.Action("Comments", "Comments")'
+                            });
+
+                            $('.more-patterson-items-table-container .dataTables_filter', modal).tooltip({
+                                title: 'Search any data in the table',
+                                container: 'body',
+                                template: '<div class="tooltip nav-tooltip-container" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+                            });
+
+                            $('.more-patterson-items-table-container [data-toggle="tooltip"]').tooltip({
+                                template: '<div class="tooltip nav-tooltip-container" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner" style="text-align: left"></div></div>',
+                                container: 'body'
+                            });
+                        },
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            if (!isMainBlocked()) {
+                                blockUI('Loading...');
+                            }
+
+                            $.postJSON(sSource, {
+                                aoData: {
+                                    sEcho: getAoDataVal(aoData, "sEcho"),
+                                    bPaginate: true,
+                                    iDisplayLength: getAoDataVal(aoData, "iDisplayLength"),
+                                    iDisplayStart: getAoDataVal(aoData, "iDisplayStart"),
+                                    sColumnName: getAoDataVal(aoData, "mDataProp_" + getAoDataVal(aoData, "iSortCol_0")),
+                                    sSortColDir: getAoDataVal(aoData, "sSortDir_0"),
+                                    sSearch: getAoDataVal(aoData, "sSearch")
+                                },
+                                filter: {
+                                    CompetitorId: competitorId,
+                                    Competitor: competitorName,
+                                    CompetitorItemNo: competitorItemNo
+                                },
+                                excludingItems: excludingItems
+                            }, function (data) {
+                                fnCallback(data);
+
+                                $.unblockUI();
+                            });
+                        },
+                        "aoColumns": [
+                            {
+                                "mDataProp": "PattersonItemNo",
+                                "mRender": function(data, display, row) {
+                                    //var pattersonItemNo = row.PattersonItemNo != null ? formatPattersonItemNumber(row.PattersonItemNo) : '-';
+                                    //return '<span>' + pattersonItemNo + '</span>';
+
+                                    var html = '';
+
+                                    var itemNo = row.PattersonItemNo != null ? formatPattersonItemNumber(row.PattersonItemNo) : '';
+
+                                    var url = 'http://www.google.com/webhp?output=search&gws_rd=ssl#q=' + encodeURIComponent(row.PattersonItemDescription);    // + '&tbm=shop' &tbm=shop
+
+                                    html += '<div class="patterson-item-reference"><div style="width: 72px; position:relative;">'+
+                                                '<span style="position:absolute; left:-14px; cursor:pointer;"><a target="_blank" title="Google Search" href="' + url + '"><img style="cursor:pointer;" src="@Url.Content("~/Content/Images/GoogleLogo.png")"></a></span>' +     // margin-left:5px;position:absolute;
+                                                '<span style="margin-left:5px;"><a href="https://www.performancehealth.com/catalogsearch/result/?q=' + itemNo + '" target="_blank" title="Go to Performance Health website">' + itemNo + '</a></span>' +
+                                            '</div></div>';
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sClass": 'no-wrap'
+                            },
+                            {
+                                "mDataProp": "PattersonItemLegacyNo",
+                                "mRender": function(data, display, row) {
+                                    var pattersonItemLegacyNo = row.PattersonItemLegacyNo != null ? row.PattersonItemLegacyNo : '';
+
+                                    return pattersonItemLegacyNo;
+                                },
+                                "bSortable": true,
+                                "sClass": 'no-wrap'
+                            },
+                            //{
+                            //    "mDataProp": "PattersonItemCatalogNo",
+                            //    "mRender": function(data, display, row) {
+                            //        var pattersonItemCatalogNo = row.PattersonItemCatalogNo != null ? row.PattersonItemCatalogNo : '-';
+                            //        var pattersonItemVendor = row.PattersonItemVendor != null ? row.PattersonItemVendor : '';
+
+                            //        return '<span title="' + pattersonItemVendor + '">' + pattersonItemCatalogNo + '</span>';
+                            //    },
+                            //    "bSortable": true,
+                            //    "sClass": 'no-wrap'
+                            //},
+                            {
+                                "mDataProp": "PattersonItemDescription",
+                                "mRender": function(data, display, row) {
+                                    var pattersonItemDescription = row.PattersonItemDescription != null ? row.PattersonItemDescription : '-';
+
+                                    return '<div title="' + htmlEscape(pattersonItemDescription) + '">' + pattersonItemDescription + '</div>';  //class="item-description-ellipsis"
+                                },
+                                "bSortable": true,
+                                "sWidth": '100px',
+                                "sClass": 'width-100'   //item-description-ellipsis-container
+                            },
+                            //{
+                            //    "mDataProp": "Cost",
+                            //    "mRender": function(data, display, row) {
+                            //        var cost = row.Cost != null ? row.Cost.formatMoney(2, '.', ',', '$') : '';
+
+                            //        return cost;
+                            //    },
+                            //    "bSortable": true,
+                            //    "sWidth": '1px',
+                            //    "sClass": 'text-right'
+                            //},
+                            {
+                                "mDataProp": "UOM",
+                                "mRender": function(data, display, row) {
+                                    var uom = row.UOM != null ? row.UOM : '';
+
+                                    return uom;
+                                },
+                                "bSortable": true,
+                                "sWidth": '30px'
+                            },
+                            {
+                                "mDataProp": "CountryCode",
+                                "mRender": function(data, display, row) {
+                                    var countryCode;
+                                    var countryName;
+                                    if (row.CountryName !== 'Unknown') {
+                                        countryCode = row.CountryCode;
+                                        countryName = row.CountryName;
+                                    } else {
+                                        countryCode = 'N/A';
+                                        countryName = row.CountryName;
+                                    }
+
+                                    return '<span title="' + countryName + '">' + countryCode + '</span>';
+                                },
+                                "bSortable": false,
+                                "sWidth": '30px'
+                            },
+                            {
+                                "mDataProp": "PattersonItemEquivalencyCode",
+                                "mRender": function(data, display, row) {
+                                    //return '<span>' + getEquivalencyCodeDropDownHtml(row.Id, row.PattersonItemEquivalencyCode) + '</span>';
+                                    return row.PattersonItemEquivalencyCode;
+                                },
+                                "bSortable": false
+                            },
+
+                            {
+                                "mDataProp": "VotingLike",               // thumbs-up
+                                "mRender": function (data, display, row) {
+
+                                    var html = '';
+
+                                    var voteNum = row.VotingLike == null ? 0 : row.VotingLike;
+
+                                    if (row.Vote == 1) {
+                                        html += '<div class="px-style-vote-container px-style-voted-up">';
+                                    } else {
+                                        html += '<div class="px-style-vote-container">';
+                                    }
+
+                                    html += '<a href="javascript:;" data-px-id="voteUp" class="px-style-btn-circle" data-px-item-id="' + row.Id + '"><i class="fa fa-thumbs-o-up" ></i></a>';
+                                    html += '<a href="javascript:;" style="margin-left:11px;" data-px-id="upVotes" data-px-item-id="' + row.Id + '">' + voteNum + '</a>';
+                                    html += '</div>';
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sClass": "no-wrap"
+                            },
+                            {
+                                "mDataProp": "VotingDislike",               // thumbs-down
+                                "mRender": function (data, display, row) {
+
+                                    var html = '';
+
+                                    var voteNum = row.VotingDislike == null ? 0 : row.VotingDislike;
+
+                                    if (row.Vote == -1) {
+                                        html += '<div class="px-style-vote-container px-style-voted-down">';
+                                    } else {
+                                        html += '<div class="px-style-vote-container">';
+                                    }
+
+                                    html += '<a href="javascript:;" data-px-id="voteDown" class="px-style-btn-circle" data-px-item-id="' + row.Id + '"><i class="fa fa-thumbs-o-down" ></i></a>';
+                                    html += '<a href="javascript:;" style="margin-left:11px;" data-px-id="downVotes" data-px-item-id="' + row.Id + '">' + voteNum + '</a>';
+                                    html += '</div>';
+
+                                    return html;
+                                },
+                                "bSortable": true,
+                                "sClass": "no-wrap"
+                            },
+
+                            {
+                                "mDataProp": "Links",
+                                "mRender": function(data, display, row) {
+                                    //var links = row.Links != null ? row.Links : '';
+                                    //return '<span data-toggle="tooltip" data-placement="top" title="Number of times x-ref item has been used in an x-ref">' + links + '</span>';
+
+                                    var html = '';
+
+                                    var links = row.Links != null ? row.Links : '';
+
+                                    onClickLinks = links != 0
+                                        ? '<a class="links-data" onclick="SubItemClicked(' + row.Id + ',' + links + ')" href="javascript:void(0)" data-id="' + row.Id + '">' + links + '</a>'
+                                        : '<div data-id="' + row.Id + '">' + links + '</div>';
+
+                                    html += '<div class="patterson-item-reference">' + onClickLinks + '</div>';
+
+                                    return html;
+                                },
+                                "bSortable": false,
+                                "sClass": "no-wrap text-center"
+                            },
+                            {
+                                "mDataProp": "Id",
+                                "mRender": function(data, display, row) {
+                                    return '';
+                                },
+                                "bVisible": false,
+                                "bSortable": false,
+                                "sClass": "no-wrap text-center"
+                            },
+                            {
+                                "mDataProp": "Id",
+                                "mRender": function(data, display, row) {
+                                    var commentClass = row.HasComments ? 'fa-comment' : 'fa-comment-o';
+                                    var id = row.Id;
+
+                                    return '<div class="btn-group btn-group-xs" role="group"style="width:80px">' +
+                                        '<a class="edit-cross-reference-item btn btn-default btn-xs" title="Edit" href="javascript:void(0)" data-id="' + id +'"><span class="glyphicon glyphicon-pencil"></span></a>' +
+                                        '<a class="delete-cross-reference-item btn btn-default btn-xs" title="Delete" href="javascript:void(0)" data-id="' + id +'"><span class="glyphicon glyphicon-trash"></span></a>' +
+                                        '<a class="comment-cross-reference-item btn btn-default btn-xs" href="javascript:void(0)" data-id="' + id +'"><i class="cross-reference-icon fa ' + commentClass + '"></i></a>' +
+                                        '</div>';
+                                },
+                                "bSortable": false,
+                                "sClass": "no-wrap"
+                            }
+                        ]
+                    });
+                    dataTable.fnSetFilteringDelay(1000);
+
+                    return dataTable;
+                }
+
+
+                //function setupLinksDataModal() {
+                 //   var buttons = $('.links-data');
+
+                 //   buttons.on('click', function () {
+
+
+                function SubItemClicked(itemId)
+                {
+                    //debugger;
+                    var rowData = getRowData(this);
+                    var competitorCrossReferenceId = itemId; //rowData.Items[0].Id;
+
+                    var modal = $('#links-data-modal');
+                    modal.modal({
+                        show: false
+                    });
+                    $('.modal-header', modal).css('cursor', 'move');
+                    $('.modal-dialog', modal).draggable({
+                        handle: '.modal-header',
+                        cursor: 'move'
+                    });
+                    //modal.off('hide.bs.modal').on('hide.bs.modal', function () {
+                    //    $('#quotesDetailsTable').dataTable().fnDraw();
+                    //});
+
+                    var modalBody = $('.modal-body .col-md-12', modal);
+
+                    blockUI('Please wait...');
+                    $.ajax({
+                        url: '@Url.Action("LinksData", "Home")',
+                        type: 'GET',
+                        dataType: 'html',
+                        success: function (result) {
+                            modalBody.html(result);
+                            //debugger;
+                            //setupMorePattersonItemsTable(competitorId, competitorName, competitorItemNo, excludingItems , modal);
+                            setupLinksDataTable(competitorCrossReferenceId, modal);
+                            $.unblockUI();
+                            modal.modal('show');
+
+                        },
+                        error: defaultErrorHandler
+                    });
+                }
+                 //   });
+                //}
+
+                function setupLinksDataTable(competitorCrossReferenceId, modal) {
+                    var table = $('#linksDataTable', modal);
+                    var dataTable = table.dataTable({
+                        "bDestroy": true,
+                        "aLengthMenu": [5, 10, 25, 50, 250, 500],
+                        "iDisplayLength": 10,
+                        "bFilter": true,
+                        "bLengthChange": true,
+                        "bProcessing": false,
+                        "bPaginate": true,
+                        "bServerSide": true,
+                        "sDom": 'lfr<"toolbar"><"actions">t<"pull-left"i><"pull-right"p>',
+                        "sPaginationType": "full_numbers",
+                        "sAjaxSource": '@Url.Action("LinksTableData", "Home")',
+                        "aaSorting": [[0, 'asc']],
+
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            if (!isMainBlocked()) {
+                                blockUI('Loading...');
+                            }
+
+                            $.postJSON(sSource, {
+                                aoData: {
+                                    sEcho: getAoDataVal(aoData, "sEcho"),
+                                    bPaginate: true,
+                                    iDisplayLength: getAoDataVal(aoData, "iDisplayLength"),
+                                    iDisplayStart: getAoDataVal(aoData, "iDisplayStart"),
+                                    sColumnName: getAoDataVal(aoData, "mDataProp_" + getAoDataVal(aoData, "iSortCol_0")),
+                                    sSortColDir: getAoDataVal(aoData, "sSortDir_0"),
+                                    sSearch: getAoDataVal(aoData, "sSearch")
+                                },
+                                competitorCrossReferenceId: competitorCrossReferenceId
+                            }, function (data) {
+                                fnCallback(data);
+
+                                $.unblockUI();
+                            });
+                        },
+                        "aoColumns": [
+                            {
+                                "mDataProp": "Customer",
+                                "mRender": function(data, display, row) {
+                                    var customer = row.Customer != null ? row.Customer : '';
+
+                                    return '<span>' + customer + '</span>';
+                                },
+                                "bSortable": true,
+                                "sClass": 'no-wrap'
+                            },
+                            {
+                                "mDataProp": "Created",
+                                "mRender": function(data, display, row) {
+                                    var created = row.Created != null ? row.Created.formatJsonDate(true) : '';
+
+                                    return created;
+                                },
+                                "bSortable": true,
+                                "sClass": 'no-wrap'
+                            },
+                            {
+                                "mDataProp": "User",
+                                "mRender": function(data, display, row) {
+                                    var user = row.User != null ? row.User : '';
+
+                                    return '<span>' + user + '</span>';
+                                },
+                                "bSortable": true,
+                                "sClass": 'no-wrap'
+                            },
+                        ]
+                    });
+                    dataTable.fnSetFilteringDelay(1000);
+
+                    return dataTable;
+                }
+
+
+
+    </script>
+}
+
+<style>
+    #crossReferenceTableHiddenHeader th {
+        padding-top: 0px !important;
+        padding-bottom: 0px !important;
+        border-bottom: 0px !important;
+        visibility: hidden !important;
+    }
+</style>

@@ -8,6 +8,7 @@ namespace NorthwindApp.Models
 {
     public class EmployeeModel
     {
+        public int EmployeeID { get; set; }
         public string LastName { set; get; }
         public string FirstName { set; get; }
         public string Title { set; get; }
