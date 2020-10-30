@@ -7,6 +7,8 @@
       <Diagram DiagramId="0847c8a0197942e19330d705f93feeda" Name="Diagram1" ZoomLevel="85">
         <EntityTypeShape EntityType="NorthwindModel.Employee" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <AssociationConnector Association="NorthwindModel.FK_Employees_Employees" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="NorthwindModel.DaysOff" Width="1.5" PointX="3" PointY="2.25" />
+        <AssociationConnector Association="NorthwindModel.FK__DaysOff__empID__02FC7413" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

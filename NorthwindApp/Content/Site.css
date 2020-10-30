@@ -100,3 +100,11 @@ tr.shown td.details-control {
         transform: scale(1.1);
     }
 
+
+#root {
+    text-align: center;
+}
+
+.btn {
+    margin-bottom: 30px;
+}
