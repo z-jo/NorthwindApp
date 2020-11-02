@@ -388,6 +388,8 @@
     <Content Include="Content\themes\base\tabs.css" />
     <Content Include="Content\themes\base\theme.css" />
     <Content Include="Content\themes\base\tooltip.css" />
+    <Content Include="Content\Vuetify\vuetify.css" />
+    <Content Include="Content\Vuetify\vuetify.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -470,6 +472,8 @@
     <Content Include="Content\DataTables\extensions\RowReorder\css\semanticui.scss" />
     <Content Include="Content\DataTables\extensions\Buttons\css\mixins.scss" />
     <Content Include="Content\DataTables\extensions\Buttons\css\common.scss" />
+    <Content Include="Content\Vuetify\vuetify.js.map" />
+    <Content Include="Content\Vuetify\vuetify.css.map" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\DataTables\media\js\dataTables.bootstrap.js" />
     <Content Include="Scripts\DataTables\media\js\dataTables.bootstrap.min.js" />
@@ -502,6 +506,8 @@
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\vue.js" />
     <Content Include="Scripts\vue.min.js" />
+    <Content Include="Scripts\Vuetify\vuetify.js" />
+    <Content Include="Scripts\Vuetify\vuetify.min.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -514,10 +520,11 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Home\DataTable.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\About - Copy.cshtml" />
     <Content Include="Views\Home\AddOrEdit.cshtml" />
+    <Content Include="Views\Home\DataTable - Copy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

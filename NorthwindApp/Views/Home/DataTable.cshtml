@@ -1,0 +1,372 @@
+﻿@{
+    ViewBag.Title = "Vue.js Datatable";
+}
+
+<script src="~/Scripts/vue.js"></script>
+<script src="~/Scripts/Vuetify/vuetify.js"></script>
+<p>&nbsp;</p>
+<div id="app">
+    <v-app id="inspire">
+        <v-data-table :headers="headers"
+                      :items="employees"
+                      sort-by="lastName"
+                      class="elevation-1">
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-toolbar-title>Employees Info Page</v-toolbar-title>
+                    <v-divider class="mx-4"
+                               inset
+                               vertical></v-divider>
+                    <v-spacer></v-spacer>
+                    <v-dialog v-model="dialog"
+                              max-width="600px">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn color="primary"
+                                   dark
+                                   class="mb-2"
+                                   v-bind="attrs"
+                                   v-on="on">
+                                New Employee
+                            </v-btn>
+                        </template>
+                        <v-card>
+                            <v-card-title>
+                                <span class="headline">{{ formTitle }}</span>
+                            </v-card-title>
+
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12"
+                                               sm="6"
+                                               md="4">
+                                            <v-text-field v-model="editedItem.lastName"
+                                                          label="Last name"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12"
+                                               sm="6"
+                                               md="4">
+                                            <v-text-field v-model="editedItem.firstName"
+                                                          label="First name"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12"
+                                               sm="6"
+                                               md="4">
+                                            <v-text-field v-model="editedItem.title"
+                                                          label="Title"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12"
+                                               sm="6"
+                                               md="4">
+                                            <v-text-field value="TimeOff Request:"
+                                                          label="Solo"
+                                                          solo
+                                                          readonly></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12"
+                                               sm="6"
+                                               md="4">
+                                            <v-menu ref="menu1"
+                                                    v-model="menu1"
+                                                    :close-on-content-click="false"
+                                                    :return-value.sync="date1"
+                                                    transition="scale-transition"
+                                                    offset-y
+                                                    min-width="290px">
+                                                <template v-slot:activator="{ on, attrs }">
+                                                    <v-text-field v-model="date1"
+                                                                  label="From:"
+                                                                  prepend-icon="mdi-calendar"
+                                                                  readonly
+                                                                  v-bind="attrs"
+                                                                  v-on="on"></v-text-field>
+                                                </template>
+                                                <v-date-picker v-model="date1"
+                                                               no-title
+                                                               scrollable>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn text
+                                                           color="primary"
+                                                           v-on:click="menu1 = false">
+                                                        Cancel
+                                                    </v-btn>
+                                                    <v-btn text
+                                                           color="primary"
+                                                           v-on:click="$refs.menu1.save(date1)">
+                                                        OK
+                                                    </v-btn>
+                                                </v-date-picker>
+                                            </v-menu>
+                                        </v-col>
+
+                                        <v-col cols="12"
+                                               sm="6"
+                                               md="4">
+                                            <v-menu ref="menu2"
+                                                    v-model="menu2"
+                                                    :close-on-content-click="false"
+                                                    :return-value.sync="date2"
+                                                    transition="scale-transition"
+                                                    offset-y
+                                                    min-width="290px">
+                                                <template v-slot:activator="{ on, attrs }">
+                                                    <v-text-field v-model="date2"
+                                                                  label="To:"
+                                                                  prepend-icon="mdi-calendar"
+                                                                  
+                                                                  v-bind="attrs"
+                                                                  v-on="on"></v-text-field>
+                                                </template>
+                                                <v-date-picker v-model="date2"
+                                                               no-title
+                                                               scrollable>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn text
+                                                           color="primary"
+                                                           v-on:click="menu2 = false">
+                                                        Cancel
+                                                    </v-btn>
+                                                    <v-btn text
+                                                           color="primary"
+                                                           v-on:click="$refs.menu2.save(date2)">
+                                                        OK
+                                                    </v-btn>
+                                                </v-date-picker>
+                                            </v-menu>
+                                        </v-col>
+
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1"
+                                       text
+                                       v-on:click="close">
+                                    Cancel
+                                </v-btn>
+                                <v-btn color="blue darken-1"
+                                       text
+                                       v-on:click="save">
+                                    Save
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                    <v-dialog v-model="dialogDelete" max-width="600px">
+                        <v-card>
+                            <v-card-title class="headline">Are you sure you want to delete this employee?</v-card-title>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1" text v-on:click="closeDelete">Cancel</v-btn>
+                                <v-btn color="blue darken-1" text v-on:click="deleteItemConfirm">OK</v-btn>
+                                <v-spacer></v-spacer>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                </v-toolbar>
+            </template>
+            <template v-slot:item.actions="{ item }">
+                <v-btn small
+                        class="mr-2"
+                        v-on:click="editItem(item)">
+                    Edit
+                </v-btn>
+                <v-btn small
+                        v-on:click="deleteItem(item)">
+                    Delete
+                </v-btn>
+            </template>
+            <template v-slot:no-data>
+                <v-btn color="primary"
+                       v-on:click="initialize">
+                    Reset
+                </v-btn>
+            </template>
+        </v-data-table>
+    </v-app>
+</div>
+
+<link href="~/Content/Vuetify/vuetify.css" rel="stylesheet" />
+<link href="~/Content/Vuetify/vuetify.min.css" rel="stylesheet" />
+
+@section scripts{
+
+    <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/Vuetify/vuetify.min.js"></script>
+
+    <script>
+
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: () => ({
+                date1: new Date().toISOString().substr(0, 10),
+                date2: new Date().toISOString().substr(0, 10),
+                menu1: false,
+                menu2: false,
+                modal: false,
+                dialog: false,
+                dialogDelete: false,
+                headers: [
+                    {
+                        text: 'Last Name',
+                        align: 'start',           
+                        value: 'lastName',
+                    },
+                    { text: 'First Name', value: 'firstName', sortable: false },
+                    { text: 'Title', value: 'title' },
+                    { text: 'Actions', value: 'actions', sortable: false },
+                ],
+                employees: [],
+                editedIndex: -1,
+                editedItem: {
+                    lastName: '',
+                    firstName: '',
+                    title: '',
+                  
+                },
+                defaultItem: {
+                    lastName: '',
+                    firstName: '',
+                    title: '',
+                    
+                },
+
+            }),
+
+            computed: {
+                formTitle() {
+                    return this.editedIndex === -1 ? 'New Employee' : 'Edit Employee'
+                },
+            },
+
+            watch: {
+                dialog(val) {
+                    val || this.close()
+                },
+                dialogDelete(val) {
+                    val || this.closeDelete()
+                },
+            },
+
+            created() {
+                this.initialize()
+            },
+
+            methods: {
+                initialize() {
+                    this.employees = [
+                        {
+                            lastName: 'Frozen Yogurt',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                            
+                        },
+                        {
+                            lastName: 'Ice cream sandwich',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                          
+                        },
+                        {
+                            lastName: 'Eclair',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                          
+                        },
+                        {
+                            lastName: 'Cupcake',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                        
+                        },
+                        {
+                            lastName: 'Gingerbread',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                          
+                        },
+                        {
+                            lastName: 'Jelly bean',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                            
+                        },
+                        {
+                            lastName: 'Lollipop',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                        
+                        },
+                        {
+                            lastName: 'Honeycomb',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                            
+                        },
+                        {
+                            lastName: 'Donut',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                          
+                        },
+                        {
+                            lastName: 'KitKat',
+                            firstName: 'Frozen Yogurt',
+                            title: 'Frozen Yogurt',
+                         
+                        },
+                    ]
+                },
+
+                editItem(item) {
+                    this.editedIndex = this.employees.indexOf(item)
+                    this.editedItem = Object.assign({}, item)
+                    this.dialog = true
+                },
+
+                deleteItem(item) {
+                    this.editedIndex = this.employees.indexOf(item)
+                    this.editedItem = Object.assign({}, item)
+                    this.dialogDelete = true
+                },
+
+                deleteItemConfirm() {
+                    this.employees.splice(this.editedIndex, 1)
+                    this.closeDelete()
+                },
+
+                close() {
+                    this.dialog = false
+                    this.$nextTick(() => {
+                        this.editedItem = Object.assign({}, this.defaultItem)
+                        this.editedIndex = -1
+                    })
+                },
+
+                closeDelete() {
+                    this.dialogDelete = false
+                    this.$nextTick(() => {
+                        this.editedItem = Object.assign({}, this.defaultItem)
+                        this.editedIndex = -1
+                    })
+                },
+
+                save() {
+                    if (this.editedIndex > -1) {
+                        Object.assign(this.employees[this.editedIndex], this.editedItem)
+                    } else {
+                        this.employees.push(this.editedItem)
+                    }
+                    this.close()
+                },
+            },
+        })
+
+    </script>
+
+}

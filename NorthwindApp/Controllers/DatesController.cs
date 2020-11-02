@@ -17,7 +17,7 @@ namespace NorthwindApp.Controllers
         }
 
 
-        public ActionResult SubmitDates(DatesModel dates)
+        public ActionResult SubmitDates(DatesModel date)
         {
 
             return Json(new { data = "zorana" }, JsonRequestBehavior.AllowGet);

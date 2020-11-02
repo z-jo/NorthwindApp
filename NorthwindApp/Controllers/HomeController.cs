@@ -43,10 +43,9 @@ namespace NorthwindApp.Controllers
             return View();
         }
 
-        public ActionResult Contact()
+        public ActionResult DataTable()
         {
-            ViewBag.Message = "Your contact page.";
-
+            
             return View();
         }
     }
