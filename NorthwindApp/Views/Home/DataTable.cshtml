@@ -4,19 +4,26 @@
 
 <script src="~/Scripts/vue.js"></script>
 <script src="~/Scripts/Vuetify/vuetify.js"></script>
+<script src="~/Scripts/axios.js"></script>
 <p>&nbsp;</p>
 <div id="app">
     <v-app id="inspire">
+     
         <v-data-table :headers="headers"
                       :items="employees"
+                      :search="search"
                       sort-by="lastName"
                       class="elevation-1">
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-toolbar-title>Employees Info Page</v-toolbar-title>
-                    <v-divider class="mx-4"
-                               inset
-                               vertical></v-divider>
+                    
+                    <v-spacer></v-spacer>
+                    <v-text-field v-model="search"
+                                  append-icon="mdi-magnify"
+                                  label="Search"
+                                  single-line
+                                  hide-details></v-text-field>
                     <v-spacer></v-spacer>
                     <v-dialog v-model="dialog"
                               max-width="600px">
@@ -33,26 +40,25 @@
                             <v-card-title>
                                 <span class="headline">{{ formTitle }}</span>
                             </v-card-title>
-
                             <v-card-text>
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12"
                                                sm="6"
                                                md="4">
-                                            <v-text-field v-model="editedItem.lastName"
+                                            <v-text-field v-model="editedItem.LastName"
                                                           label="Last name"></v-text-field>
                                         </v-col>
                                         <v-col cols="12"
                                                sm="6"
                                                md="4">
-                                            <v-text-field v-model="editedItem.firstName"
+                                            <v-text-field v-model="editedItem.FirstName"
                                                           label="First name"></v-text-field>
                                         </v-col>
                                         <v-col cols="12"
                                                sm="6"
                                                md="4">
-                                            <v-text-field v-model="editedItem.title"
+                                            <v-text-field v-model="editedItem.Title"
                                                           label="Title"></v-text-field>
                                         </v-col>
                                     </v-row>
@@ -115,7 +121,6 @@
                                                     <v-text-field v-model="date2"
                                                                   label="To:"
                                                                   prepend-icon="mdi-calendar"
-                                                                  
                                                                   v-bind="attrs"
                                                                   v-on="on"></v-text-field>
                                                 </template>
@@ -171,12 +176,12 @@
             </template>
             <template v-slot:item.actions="{ item }">
                 <v-btn small
-                        class="mr-2"
-                        v-on:click="editItem(item)">
+                       class="mr-2"
+                       v-on:click="editItem(item)">
                     Edit
                 </v-btn>
                 <v-btn small
-                        v-on:click="deleteItem(item)">
+                       v-on:click="deleteItem(item)">
                     Delete
                 </v-btn>
             </template>
@@ -197,6 +202,7 @@
 
     <script src="~/Scripts/vue.min.js"></script>
     <script src="~/Scripts/Vuetify/vuetify.min.js"></script>
+    <script src="~/Scripts/axios.min.js"></script>
 
     <script>
 
@@ -211,29 +217,30 @@
                 modal: false,
                 dialog: false,
                 dialogDelete: false,
+                search: '',
                 headers: [
                     {
                         text: 'Last Name',
-                        align: 'start',           
-                        value: 'lastName',
+                        align: 'start',
+                        value: 'LastName',
                     },
-                    { text: 'First Name', value: 'firstName', sortable: false },
-                    { text: 'Title', value: 'title' },
+                    { text: 'First Name', value: 'FirstName', sortable: false },
+                    { text: 'Title', value: 'Title' },
                     { text: 'Actions', value: 'actions', sortable: false },
                 ],
                 employees: [],
                 editedIndex: -1,
                 editedItem: {
-                    lastName: '',
-                    firstName: '',
-                    title: '',
-                  
+                    LastName: '',
+                    FirstName: '',
+                    Title: '',
+
                 },
                 defaultItem: {
-                    lastName: '',
-                    firstName: '',
-                    title: '',
-                    
+                    LastName: '',
+                    FirstName: '',
+                    Title: '',
+
                 },
 
             }),
@@ -257,70 +264,18 @@
                 this.initialize()
             },
 
+            mounted: function () {
+                axios.get('@Url.Action("GetEmployeeList","Home")')
+                    .then(response => {
+                        this.employees = response.data.data
+
+                    })
+
+            },
+
             methods: {
                 initialize() {
-                    this.employees = [
-                        {
-                            lastName: 'Frozen Yogurt',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                            
-                        },
-                        {
-                            lastName: 'Ice cream sandwich',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                          
-                        },
-                        {
-                            lastName: 'Eclair',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                          
-                        },
-                        {
-                            lastName: 'Cupcake',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                        
-                        },
-                        {
-                            lastName: 'Gingerbread',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                          
-                        },
-                        {
-                            lastName: 'Jelly bean',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                            
-                        },
-                        {
-                            lastName: 'Lollipop',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                        
-                        },
-                        {
-                            lastName: 'Honeycomb',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                            
-                        },
-                        {
-                            lastName: 'Donut',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                          
-                        },
-                        {
-                            lastName: 'KitKat',
-                            firstName: 'Frozen Yogurt',
-                            title: 'Frozen Yogurt',
-                         
-                        },
-                    ]
+                    this.employees = []
                 },
 
                 editItem(item) {
