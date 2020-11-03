@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNetCore.Cors;
 using NorthwindApp_DAL;
 
 namespace NorthwindApp.Controllers
 {
+    
     public class HomeController : Controller
     {
         public ActionResult Index()
@@ -46,6 +48,12 @@ namespace NorthwindApp.Controllers
         public ActionResult DataTable()
         {
             
+            return View();
+        }
+
+        public ActionResult DataTableAxios()
+        {
+
             return View();
         }
     }
