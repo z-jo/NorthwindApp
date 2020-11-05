@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNetCore.Cors;
+using NorthwindApp.Models;
 using NorthwindApp_DAL;
 
 namespace NorthwindApp.Controllers
@@ -22,8 +23,10 @@ namespace NorthwindApp.Controllers
             NorthwindEntities db = new NorthwindEntities();
             {
                 var custList = (from e in db.Employees
+                                where (e.IsDeleted ?? false) == false
                                 select new Models.EmployeeModel
                                 {
+                                    EmployeeID = e.EmployeeID,
                                     LastName = e.LastName,
                                     FirstName = e.FirstName,
                                     Title = e.Title,
@@ -39,6 +42,21 @@ namespace NorthwindApp.Controllers
         }
 
 
+        public ActionResult DeleteEmployee(EmployeeModel employee)
+        {
+            var delEmp = EmployeeModel.DeleteEmployee(employee.EmployeeID);
+
+            return Json(new { success = delEmp });
+        }
+
+        
+        public ActionResult EditEmployee(EmployeeModel employee)
+        {
+            var editEmp = EmployeeModel.EditEmployee(employee);
+
+            return Json(new { success = editEmp });
+        }
+
         public ActionResult About()
         {
             
@@ -51,10 +69,5 @@ namespace NorthwindApp.Controllers
             return View();
         }
 
-        public ActionResult DataTableAxios()
-        {
-
-            return View();
-        }
     }
 }
