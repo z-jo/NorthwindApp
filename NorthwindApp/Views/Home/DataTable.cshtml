@@ -62,8 +62,8 @@
                                                           label="Title"></v-text-field>
                                         </v-col>
                                     </v-row>
-                                    <v-row>
-                                        <v-col cols="12"
+                                    <v-row v-if="formTitle == 'Edit Employee'">
+                                        @*<v-col cols="12"
                                                sm="6"
                                                md="4">
                                             <v-text-field value="Time Off Request:"
@@ -140,7 +140,7 @@
                                                     </v-btn>
                                                 </v-date-picker>
                                             </v-menu>
-                                        </v-col>
+                                        </v-col>*@
 
                                     </v-row>
                                 </v-container>
@@ -226,9 +226,11 @@
                     },
                     { text: 'First Name', value: 'FirstName', sortable: false },
                     { text: 'Title', value: 'Title' },
+                    //{ text: 'Time Off', value: 'timeOff', sortable: false },
                     { text: 'Actions', value: 'actions', sortable: false },
                 ],
                 employees: [],
+                errors: [],
                 editedIndex: -1,
                 editedItem: {
                     LastName: '',
@@ -268,7 +270,7 @@
                 axios.get('@Url.Action("GetEmployeeList","Home")')
                     .then(response => {
                         this.employees = response.data.data
-
+                        console.log(response.data.data)
                     })
 
             },
@@ -276,7 +278,13 @@
             methods: {
                 initialize() {
                     this.employees = []
+                    //Employee.list().then(response => {
+                    //    this.employees = response.data
+                    //}).catch(e => {
+                    //    console.log(e)
+                    //});
                 },
+
 
                 editItem(item) {
                     this.editedIndex = this.employees.indexOf(item)
@@ -285,9 +293,18 @@
                 },
 
                 deleteItem(item) {
-                    this.editedIndex = this.employees.indexOf(item)
-                    this.editedItem = Object.assign({}, item)
-                    this.dialogDelete = true
+                    axios.post('@Url.Action("DeleteEmployee", "Home")', { EmployeeID: item.EmployeeID })
+                    .then(response => {
+                        const index = this.employees.indexOf(item)
+                        this.deletedItem = Object.assign({}, item)
+                        this.deletedID = this.deletedItem.id
+                        this.employees.splice(index, 1);
+                        
+                    }).catch(error => {
+                        console.log(error.response)
+                    });
+
+
                 },
 
                 deleteItemConfirm() {
