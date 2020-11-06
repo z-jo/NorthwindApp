@@ -54,6 +54,7 @@ namespace NorthwindApp.Models
 
                     if (emp != null)
                     {
+                        emp.EmployeeID = e.EmployeeID;
                         emp.FirstName = e.FirstName;
                         emp.LastName = e.LastName;
                         emp.Title = e.Title;                        

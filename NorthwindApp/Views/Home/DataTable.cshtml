@@ -62,7 +62,7 @@
                                                           label="Title"></v-text-field>
                                         </v-col>
                                     </v-row>
-                                    <v-row v-if="formTitle == 'Edit Employee'">
+                                    <v-row>
                                         @*<v-col cols="12"
                                                sm="6"
                                                md="4">
@@ -155,7 +155,7 @@
                                 </v-btn>
                                 <v-btn color="blue darken-1"
                                        text
-                                       v-on:click="save">
+                                       v-on:click="save(editedItem)">
                                     Save
                                 </v-btn>
                             </v-card-actions>
@@ -167,7 +167,7 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text v-on:click="closeDelete">Cancel</v-btn>
-                                <v-btn color="blue darken-1" text v-on:click="deleteItemConfirm">OK</v-btn>
+                                <v-btn color="blue darken-1" text v-on:click="deleteItemConfirm(editedItem)">OK</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -185,12 +185,12 @@
                     Delete
                 </v-btn>
             </template>
-            <template v-slot:no-data>
+            @*<template v-slot:no-data>
                 <v-btn color="primary"
                        v-on:click="initialize">
                     Reset
                 </v-btn>
-            </template>
+            </template>*@
         </v-data-table>
     </v-app>
 </div>
@@ -231,7 +231,6 @@
                 ],
                 employees: [],
                 errors: [],
-                editedIndex: -1,
                 editedItem: {
                     LastName: '',
                     FirstName: '',
@@ -262,53 +261,51 @@
                 },
             },
 
-            created() {
-                this.initialize()
-            },
 
             mounted: function () {
                 axios.get('@Url.Action("GetEmployeeList","Home")')
                     .then(response => {
                         this.employees = response.data.data
-                        console.log(response.data.data)
+
                     })
 
             },
 
             methods: {
-                initialize() {
-                    this.employees = []
-                    //Employee.list().then(response => {
-                    //    this.employees = response.data
-                    //}).catch(e => {
-                    //    console.log(e)
-                    //});
-                },
+                //initialize() {
+                //    //this.employees = []
+                //    GetEmployeeList().then(response => {
+                //        this.employees = response.data
+                //    }).catch(e => {
+                //        console.log(e)
+                //    });
+                //},
 
 
                 editItem(item) {
                     this.editedIndex = this.employees.indexOf(item)
                     this.editedItem = Object.assign({}, item)
                     this.dialog = true
+
                 },
 
                 deleteItem(item) {
-                    axios.post('@Url.Action("DeleteEmployee", "Home")', { EmployeeID: item.EmployeeID })
-                    .then(response => {
-                        const index = this.employees.indexOf(item)
-                        this.deletedItem = Object.assign({}, item)
-                        this.deletedID = this.deletedItem.id
-                        this.employees.splice(index, 1);
-                        
-                    }).catch(error => {
-                        console.log(error.response)
-                    });
 
-
+                    this.editedIndex = this.employees.indexOf(item)
+                    this.editedItem = Object.assign({}, item)
+                    this.dialogDelete = true
                 },
 
-                deleteItemConfirm() {
-                    this.employees.splice(this.editedIndex, 1)
+                deleteItemConfirm(item) {
+                    axios.post('@Url.Action("DeleteEmployee", "Home")', { EmployeeID: item.EmployeeID })
+                        .then(response => {
+                            this.deletedItem = Object.assign({}, item)
+                            this.deletedID = this.deletedItem.id
+                            window.location.href ='@Url.Action("DataTable", "Home")'
+                            this.response = response
+                        }).catch(error => {
+                            console.log(error.response)
+                        });
                     this.closeDelete()
                 },
 
@@ -316,7 +313,6 @@
                     this.dialog = false
                     this.$nextTick(() => {
                         this.editedItem = Object.assign({}, this.defaultItem)
-                        this.editedIndex = -1
                     })
                 },
 
@@ -324,16 +320,19 @@
                     this.dialogDelete = false
                     this.$nextTick(() => {
                         this.editedItem = Object.assign({}, this.defaultItem)
-                        this.editedIndex = -1
                     })
                 },
 
-                save() {
-                    if (this.editedIndex > -1) {
-                        Object.assign(this.employees[this.editedIndex], this.editedItem)
-                    } else {
-                        this.employees.push(this.editedItem)
-                    }
+                save(item) {
+                    axios.post('@Url.Action("EditEmployee", "Home")', { EmployeeID: item.EmployeeID, LastName: item.LastName, FirstName: item.FirstName, Title: item.Title })
+                        .then(response => {
+                            this.editedItem = Object.assign({}, item)
+                            this.editedID = this.editedItem.id
+                            this.response = response
+                            window.location.href ='@Url.Action("DataTable", "Home")'
+                        }).catch(error => {
+                            console.log(error.response)
+                        });
                     this.close()
                 },
             },
